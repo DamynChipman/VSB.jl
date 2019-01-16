@@ -1,0 +1,3 @@
+# Required packages for VSB.jl
+QuadGK
+SciTools
