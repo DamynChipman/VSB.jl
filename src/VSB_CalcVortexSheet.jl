@@ -14,7 +14,7 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 # OUTPUTS
 * `alpha::Array{Float64}`  : Solution vector of coefficients for RBF vortex sheet strength
 """
-function CalcVortexSheetCoef(panels::Array{LineSgement},RHS::Array{Float64})
+function CalcVortexSheetCoef(panels::Array{LineSegment},RHS::Array{Float64})
 
     # Extract geometry from panels
     NPAN = length(panels)
