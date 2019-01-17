@@ -13,7 +13,7 @@ using SciTools
 using QuadGK
 
 # ===== Files =====
-file_names = ["CalcVortexSheet"]
+file_names = ["CalcVortexSheet", "Verification1"]
 for header_name in file_names
     include("VSB_"*header_name*".jl")
 end
