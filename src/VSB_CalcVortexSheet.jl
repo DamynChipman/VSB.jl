@@ -47,12 +47,14 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
         R1 = [R_1ij(i,j)[1],R_1ij(i,j)[2],0]
         R2 = [R_2ij(i,j)[1],R_2ij(i,j)[2],0]
         num = norm(cross(R1,R2))
-        den = dot(2,R_1ij(i,j),1,R_2ij(i,j),1)
+        #den = dot(2,R_1ij(i,j),1,R_2ij(i,j),1)
+        den = dot(R_1ij(i,j), R_2ij(i,j))
         return atan2(num,den)
     end
 
     function r_ij(i,j,thetaPrime)
-        dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        #dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        dotted = dot(R_1ij(i,j), t_hats[i,:])
         A = r_1ij(i,j)^3 * cos(thetaPrime)
         B = r_1ij(i,j) * cos(thetaPrime)*dotted^2
         C = sqrt(abs(r_1ij(i,j)^4 * dotted^2 * sin(thetaPrime)^2 - dotted^4 * sin(thetaPrime)^2))
@@ -62,9 +64,11 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
 
     # --- Coefficient Functions ---
     function Theta_ij(i,j)
-        dottedT = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        #dottedT = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        dottedT = dot(R_1ij(i,j), t_hats[i,:])
         if abs(dottedT) > 1e-14
-            dottedN = dot(2,R_1ij(i,j),1,n_hats[i,:],1)
+            #dottedN = dot(2,R_1ij(i,j),1,n_hats[i,:],1)
+            dottedN = dot(R_1ij(i,j), n_hats[i,:])
             b2 = dottedT^2 - r_1ij(i,j)^2
             aLim = r_1ij(i,j)
             bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dottedT + r_1ij(i,j)^2)
@@ -79,7 +83,8 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
     end
 
     function Lambda_ij(i,j)
-        dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        #dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
+        dotted = dot(R_1ij(i,j), t_hats[i,:])
         if abs(dotted) > 1e-14
             b2 = dotted^2 - r_1ij(i,j)^2
             aLim = r_1ij(i,j)
@@ -185,8 +190,10 @@ function CalcVortexSheetVelocity(panels::Array{SciTools.LineSegment},
     function U(X,X1,X2,Gamma)
         A = Gamma/(4*pi)
         B = cross(R1(X,X1),R2(X,X2))/(norm(cross(R1(X,X1),R2(X,X2)))^2)
-        C = (dot(3,R0(X1,X2),1,R1(X,X1),1))/(r1(X,X1))
-        D = (dot(3,R0(X1,X2),1,R2(X,X2),1))/(r2(X,X2))
+        #C = (dot(3,R0(X1,X2),1,R1(X,X1),1))/(r1(X,X1))
+        #D = (dot(3,R0(X1,X2),1,R2(X,X2),1))/(r2(X,X2))
+        C = (dot(R0(X1,X2),R1(X,X1)))/(r1(X,X1))
+        D = (dot(R0(X1,X2),R2(X,X2)))/(r2(X,X2))
         u = A * B * (C - D)
         return u
     end
