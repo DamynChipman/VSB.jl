@@ -1,9 +1,9 @@
 # ===== PM2D Verifications: Pressure Distribution =====
-
+println("HERE")
 # == Imports ==
 using VSB
 using SciTools
-
+println("HERE")
 # == Set up geometry and grids ==
 N = 200                             # Number of points
 NPAN = N - 1                        # Number of panels
