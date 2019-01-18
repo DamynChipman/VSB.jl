@@ -25,8 +25,8 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
     for n=1:NPAN
         n_hats[n,:] = panels[n].n_hat
         t_hats[n,:] = panels[n].t_hat
-        X[n,1] = panels[n].r1[1]
-        X[n,2] = panels[n].r1[2]
+        X[n,1] = panels[n].R1[1]
+        X[n,2] = panels[n].R1[2]
     end
 
     # Guassian spreading and normalization constant
@@ -137,7 +137,7 @@ function CalcVortexSheet(panels::Array{SciTools.LineSegment},
     gamma = 0
     N = length(alpha)
     for i=1:N
-        gamma = gamma + a*alpha[i]*exp((-norm(X[1:2] - panels[i].r1)^2)/(2*sigma^2))
+        gamma = gamma + a*alpha[i]*exp((-norm(X[1:2] - panels[i].R1)^2)/(2*sigma^2))
     end
     return gamma
 end
@@ -169,8 +169,8 @@ function CalcVortexSheetVelocity(panels::Array{SciTools.LineSegment},
     NPAN = length(panels)
     XP = zeros(NPAN,3)
     for n=1:NPAN
-        XP[n,1] = panels[n].r1[1]
-        XP[n,2] = panels[n].r1[2]
+        XP[n,1] = panels[n].R1[1]
+        XP[n,2] = panels[n].R1[2]
     end
 
     # Geometry function definitions

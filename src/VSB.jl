@@ -11,6 +11,7 @@ module VSB
 # ===== Imports =====
 using SciTools
 using QuadGK
+using LinearAlgebra
 
 # ===== Files =====
 file_names = ["CalcVortexSheet"]

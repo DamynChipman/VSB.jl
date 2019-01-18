@@ -31,7 +31,7 @@ end
 # == CP: VSB w/ Summation of Linear Vortex Lines (Semi-Analytical) ==
 oper_cond = [10.0,0.0]
 panels = SciTools.Body2D(X,Y)
-RHS = zeros(NPAN) + 10.0
+RHS = ones(NPAN) * 10.0
 alpha_coefs = VSB.CalcVortexSheetCoef(panels,RHS)
 
 # Wrapper function for
