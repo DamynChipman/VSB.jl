@@ -10,6 +10,8 @@ using Plots
 pyplot()
 using LaTeXStrings
 
+cd("/Users/Damyn/Documents/BYU/FLOW Lab/VSB/verifications")
+
 # == Set up geometry and grids ==
 N = 100                             # Number of points
 NPAN = N - 1                        # Number of panels
@@ -82,16 +84,16 @@ Uinf(t) = magUinf*[1, 0, 0]
 # -------------- PARTICLE FIELD --------------------------------------------
 # Initiates the field
 pfield = ParticleField(nu,
-                        zeta_gauserf,       # Basis function
-                        g_gauserf;          # Regularizing function of zeta
-                        transposed=true,    # Transposed scheme
-                        relax=!true,        # Pedrizzeti relaxation scheme
-                        rlxf=0.3,           # Relaxation factor
-                        integration="euler",# Time integration scheme
-                        Uinf=Uinf
-                      )
+                       zeta_gauserf,       # Basis function
+                       g_gauserf;          # Regularizing function of zeta
+                       transposed=true,    # Transposed scheme
+                       relax=!true,        # Pedrizzeti relaxation scheme
+                       rlxf=0.3,           # Relaxation factor
+                       integration="euler",# Time integration scheme
+                       Uinf=Uinf)
 
 
+# Add particles on geometry of circle
 for i=1:NPAN-1
     loc = [X[i], Y[i], 0.0]
     Gamma = [0.0, 0.0, VSB.CalcVortexSheet(panels,alpha_coefs,loc[1:2])]
@@ -100,6 +102,7 @@ for i=1:NPAN-1
     addparticle(pfield, particle)
 end
 
+# Calculate pressure coefficient using SVPM velocity function
 for i=1:NPAN-1
     CP_SVPM[i] = 1 - (norm(U(pfield, [X[i],Y[i],0.0]))/(oper_cond[1]))^2
 end
@@ -121,4 +124,4 @@ plot!(theta,-CP_SVPM,line = (:green, :dash),
                      yflip = true,
                      label = "Coupled")
 display(plt1)
-savefig(plt1,"fig1.png")
+savefig(plt1,"VSB_Verification_CP.pdf")
