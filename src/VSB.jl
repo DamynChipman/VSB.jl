@@ -18,11 +18,15 @@ using SimpleVPM
 SVPM = SimpleVPM
 
 # ===== GLOBAL VARIABLES =====
-const NPTS_BODY                             # Number of poitns on vortex body
-const module_path = splitdir(@__file__)[1]  # File path to module VSB.jl
+const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
+const module_path = splitdir(@__file__)[1]              # File path to module VSB.jl
 
 # ===== Files =====
-file_names = ["CalcVortexSheet","RBF", "VortexDiffusion", "SVPMRunTime"]
+file_names = ["CalcVortexSheet",
+              "RBF",
+              "VortexDiffusion",
+              "SVPMRunTime",
+              "Boundary"]
 for header_name in file_names
     include("VSB_"*header_name*".jl")
 end
