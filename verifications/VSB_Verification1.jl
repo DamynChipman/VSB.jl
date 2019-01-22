@@ -13,7 +13,7 @@ using LaTeXStrings
 cd("/Users/Damyn/Documents/BYU/FLOW Lab/VSB/verifications")
 
 # == Set up geometry and grids ==
-N = 100                             # Number of points
+N = 92                             # Number of points
 NPAN = N - 1                        # Number of panels
 del_theta = (2*pi)/(N-1)            # Spacing in theta
 R = 1.0                             # Radius

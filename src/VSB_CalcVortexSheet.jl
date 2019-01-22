@@ -16,6 +16,9 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 """
 function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
                              RHS::Array{Float64})
+# function CalcVortexSheetCoef(boundary::Boundary,
+#                              RHS::Array{T}) where {T<:Real}
+
 
     # Extract geometry from panels
     NPAN = length(panels)
