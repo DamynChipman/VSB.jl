@@ -25,5 +25,18 @@ function SVPMRunTime(pfield::SVPM.ParticleField,
                      dt::Real,
                      body::Array{Array{T,1},1}) where{T<:Real}
 
+# === Add Particles to field around Boundary ===
 
+
+# === Calculate U_slip ===
+
+
+# === Calculate Vortex Sheet strength ===
+
+
+# === Diffuse vorticity ===
+
+
+# === Returns ===
+    return true
 end
