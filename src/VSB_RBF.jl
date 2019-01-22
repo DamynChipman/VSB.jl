@@ -16,7 +16,7 @@ The optional argument `deriv` is for the order of the derivative desired, meanin
 # OUTPUTS
 * `res`        : Calculated magnitude
 """
-function RBF_guass(R::Float64;
+function RBF_gauss(R::Float64;
                    A=1.0,sigma=1.0,deriv=0)
 
     if deriv == 0
