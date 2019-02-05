@@ -14,7 +14,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
                          boundary::Boundary,
                          X_eval::Array{T},
                          dt::Real,
-                         RHS::Array{T,1};
+                         RHS::Array{T};
                          theta_CN::Real=0.5) where {T<:Real}
 
 
@@ -41,6 +41,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
             R = r(Xi,Xj)
             RHAT = rHat(Xi,Xj)
             A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
+            println("A[",i,", ",j,"] = ",A[i,j])
         end
     end
 
@@ -51,6 +52,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
             Xj = pfield.particles[j].X
             R = r(Xi,Xj)
             A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
+            println("A[",i,", ",j,"] = ",A[i,j])
         end
     end
 
