@@ -36,7 +36,7 @@ function CalcVortexSheet(boundary::Boundary,
     X = [[point[1], point[2]] for point in boundary.bodyPTS]
     n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
     t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
-    NPTS = boundary.NPTS
+    NPTS = boundary.NPTS_BODY
 
     # Guassian spreading and normalization constant
     sigma = 1.0
