@@ -17,8 +17,8 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 # function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
 #                              RHS::Array{Float64})
 function CalcVortexSheet(boundary::Boundary,
-                             X_eval::Array{T},
-                             RHS::Array{T}) where {T<:Real}
+                         X_eval::Array{T},
+                         RHS::Array{T}) where {T<:Real}
 
 
     # # Extract geometry from panels
@@ -33,9 +33,9 @@ function CalcVortexSheet(boundary::Boundary,
     #     X[n,2] = panels[n].R1[2]
     # end
 
-    X = [[point[1], point[2]] for point in boundary.body_pts]
-    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.n_hats]
-    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.t_hats]
+    X = [[point[1], point[2]] for point in boundary.bodyPTS]
+    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
+    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
     NPTS = boundary.NPTS
 
     # Guassian spreading and normalization constant
