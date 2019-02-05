@@ -48,7 +48,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
             Xi = pfield.particles[i].X
             Xj = pfield.particles[j].X
             R = r(Xi,Xj)
-            A[i,j] = RBF_guass(R,deriv=0) - CONST1 * RBF_guass(R,deriv=2)
+            A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
         end
     end
 
