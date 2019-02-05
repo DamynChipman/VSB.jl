@@ -24,7 +24,6 @@ const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
 # ===== Files =====
 file_names = ["CalcVortexSheet",
               "RBF",
-              "VortexDiffusion",
               "SVPMRunTime",
               "Boundary"]
 for header_name in file_names
