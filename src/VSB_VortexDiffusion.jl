@@ -23,8 +23,6 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
     N_FIELD = length(pfield.particles)
     CONST1 = pfield.nu * dt * theta_CN
     X = [[point[1], point[2]] for point in boundary.bodyPTS]
-    println("     X INSIDE DIFFUSION: ")
-    println(X)
 
     # Helper functions
     rHat(X1,X2) = (X1 - X2)/(norm(X1 - X2))
