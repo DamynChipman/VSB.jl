@@ -54,11 +54,10 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
         end
     end
 
-    println("A = ")
-    println(A)
-
     # Solve system for coefs
     beta = A\RHS
+    println("BETA INSIDE DIFFUSION:")
+    println(beta)
 
     omega = 0
     for i=1:N_BODY
