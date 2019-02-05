@@ -56,7 +56,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
     beta = A\RHS
 
     omega = 0
-    for i=1:NPTS
+    for i=1:N_BODY
         omega = omega + beta[i] * RBF_gauss(norm(X_eval[1:2] - X[i]))
     end
     return omega
