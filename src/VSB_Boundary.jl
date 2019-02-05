@@ -13,6 +13,6 @@ mutable struct Boundary
     function Boundary(body_pts::NUMB_MATRIX,
                       t_hats::NUMB_MATRIX,
                       n_hats::NUMB_MATRIX)
-        new(body_pts,t_hats,n_hats,length(body))
+        new(body_pts,t_hats,n_hats,length(body_pts))
     end
 end
