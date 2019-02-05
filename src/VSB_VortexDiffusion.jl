@@ -12,6 +12,7 @@
 """
 function VortexDiffusion(pfield::SVPM.ParticleField,
                          boundary::Boundary,
+                         X_eval::Array{T},
                          dt::Real,
                          RHS::Array{T,1};
                          theta_CN::Real=0.5) where {T<:Real}
@@ -21,6 +22,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
     N_BODY = boundary.NPTS_BODY
     N_FIELD = length(pfield.particles)
     CONST1 = pfield.nu * dt * theta_CN
+    X = [[point[1], point[2]] for point in boundary.bodyPTS]
 
     # Helper functions
     rHat(X1,X2) = (X1 - X2)/(norm(X1 - X2))
@@ -51,6 +53,12 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
     end
 
     # Solve system for coefs
-    coefs = A\RHS
-    return coefs
+    beta = A\RHS
+
+    omega = 0
+    for i=1:NPTS
+        omega = omega + beta[i] * RBF_gauss(norm(X_eval[1:2] - X[i]))
+    end
+    return omega
+
 end

@@ -25,7 +25,8 @@ const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
 file_names = ["RBF",
               "SVPMRunTime",
               "Boundary",
-              "CalcVortexSheet"]
+              "CalcVortexSheet",
+              "VortexDiffusion"]
 for header_name in file_names
     include("VSB_"*header_name*".jl")
 end
