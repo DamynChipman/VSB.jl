@@ -19,7 +19,7 @@ SVPM = SimpleVPM
 
 # ===== GLOBAL VARIABLES =====
 const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
-const module_path = splitdir(@__file__)[1]              # File path to module VSB.jl
+#const module_path = splitdir(@__file__)[1]              # File path to module VSB.jl
 
 # ===== Files =====
 file_names = ["CalcVortexSheet",

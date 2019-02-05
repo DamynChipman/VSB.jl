@@ -193,8 +193,6 @@ function CalcVortexSheetVelocity(panels::Array{SciTools.LineSegment},
     function U(X,X1,X2,Gamma)
         A = Gamma/(4*pi)
         B = cross(R1(X,X1),R2(X,X2))/(norm(cross(R1(X,X1),R2(X,X2)))^2)
-        #C = (dot(3,R0(X1,X2),1,R1(X,X1),1))/(r1(X,X1))
-        #D = (dot(3,R0(X1,X2),1,R2(X,X2),1))/(r2(X,X2))
         C = (dot(R0(X1,X2),R1(X,X1)))/(r1(X,X1))
         D = (dot(R0(X1,X2),R2(X,X2)))/(r2(X,X2))
         u = A * B * (C - D)

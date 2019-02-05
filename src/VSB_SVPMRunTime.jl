@@ -22,8 +22,8 @@ end
 """
 function SVPMRunTime(pfield::SVPM.ParticleField,
                      t::Real,
-                     dt::Real,
-                     body::Array{Array{T,1},1}) where{T<:Real}
+                     dt::Real)
+                     #body::Array{Array{T,1},1}) where{T<:Real}
 
     # === Add Particles to field around Boundary ===
 
@@ -43,6 +43,6 @@ function SVPMRunTime(pfield::SVPM.ParticleField,
 
     # === Returns ===
 
-    
+
     return true
 end
