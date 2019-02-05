@@ -40,12 +40,12 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
                 R = r(Xi,Xj)
                 RHAT = rHat(Xi,Xj)
                 A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
-                println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
+                #println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
             else
                 R = 0.0
                 RHAT = [0.0, 0.0, 0.0]
                 A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
-                println("I == J ... A[",i,", ",j,"] = ",A[i,j])
+                #println("I == J ... A[",i,", ",j,"] = ",A[i,j])
             end
 
         end
@@ -59,11 +59,11 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
                 Xj = pfield.particles[j].X
                 R = r(Xi,Xj)
                 A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
-                println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
+                #println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
             else
                 R = 0.0
                 A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
-                println("I == J ... A[",i,", ",j,"] = ",A[i,j])
+                #println("I == J ... A[",i,", ",j,"] = ",A[i,j])
             end
         end
     end
