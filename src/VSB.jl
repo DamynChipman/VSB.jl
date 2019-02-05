@@ -22,10 +22,10 @@ const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
 #const module_path = splitdir(@__file__)[1]              # File path to module VSB.jl
 
 # ===== Files =====
-file_names = ["CalcVortexSheet",
-              "RBF",
+file_names = ["RBF",
               "SVPMRunTime",
-              "Boundary"]
+              "Boundary",
+              "CalcVortexSheet"]
 for header_name in file_names
     include("VSB_"*header_name*".jl")
 end
