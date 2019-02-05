@@ -43,7 +43,14 @@ function CalcVortexSheet(boundary::Boundary,
 
     # === Helper Function Definitions ===
     X_1i(i) = X[i,:]
-    X_2i(i) = X[i+1,:]
+    X_2i(i) = (i != NPTS) ? X[i+1,:] : X[1,:]
+    # function X_2i(i)
+    #     if i != NPTS
+    #         return X[i+1,:]
+    #     else
+    #         return X[1,:]
+    #     end
+    # end
     Xj(j) = X[j,:]
     R_0i(i) = X_1i(i) - X_2i(i)
     R_1ij(i,j) = X_1i(i) - Xj(j)
