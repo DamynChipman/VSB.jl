@@ -45,7 +45,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
                 RHAT = [0.0, 0.0, 0.0]
                 A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
             end
-            #println("A[",i,", ",j,"] = ",A[i,j])
+            println("A[",i,", ",j,"] = ",A[i,j])
         end
     end
 
@@ -61,7 +61,7 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
                 R = 0.0
                 A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
             end
-            #println("A[",i,", ",j,"] = ",A[i,j])
+            println("A[",i,", ",j,"] = ",A[i,j])
         end
     end
 
