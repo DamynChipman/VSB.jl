@@ -14,29 +14,34 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 # OUTPUTS
 * `alpha::Array{Float64}`  : Solution vector of coefficients for RBF vortex sheet strength
 """
-function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
-                             RHS::Array{Float64})
-# function CalcVortexSheetCoef(boundary::Boundary,
-#                              RHS::Array{T}) where {T<:Real}
+# function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
+#                              RHS::Array{Float64})
+function CalcVortexSheet(boundary::Boundary,
+                             X_eval::Array{T},
+                             RHS::Array{T}) where {T<:Real}
 
 
-    # Extract geometry from panels
-    NPAN = length(panels)
-    n_hats = zeros(NPAN,2)
-    t_hats = zeros(NPAN,2)
-    X = zeros(NPAN,2)
-    for n=1:NPAN
-        n_hats[n,:] = panels[n].n_hat
-        t_hats[n,:] = panels[n].t_hat
-        X[n,1] = panels[n].R1[1]
-        X[n,2] = panels[n].R1[2]
-    end
+    # # Extract geometry from panels
+    # NPAN = length(panels)
+    # n_hats = zeros(NPAN,2)
+    # t_hats = zeros(NPAN,2)
+    # X = zeros(NPAN,2)
+    # for n=1:NPAN
+    #     n_hats[n,:] = panels[n].n_hat
+    #     t_hats[n,:] = panels[n].t_hat
+    #     X[n,1] = panels[n].R1[1]
+    #     X[n,2] = panels[n].R1[2]
+    # end
+
+    X = [[point[1], point[2]] for point in boundary.body_pts]
+    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.n_hats]
+    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.t_hats]
+    NPTS = boundary.NPTS
 
     # Guassian spreading and normalization constant
-    a = 1
-    sigma = 0.2
+    sigma = 1.0
 
-    # Function definitions
+    # === Helper Function Definitions ===
     X_1i(i) = X[i,:]
     X_2i(i) = X[i+1,:]
     Xj(j) = X[j,:]
@@ -50,13 +55,11 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
         R1 = [R_1ij(i,j)[1],R_1ij(i,j)[2],0]
         R2 = [R_2ij(i,j)[1],R_2ij(i,j)[2],0]
         num = norm(cross(R1,R2))
-        #den = dot(2,R_1ij(i,j),1,R_2ij(i,j),1)
         den = dot(R_1ij(i,j), R_2ij(i,j))
         return atan2(num,den)
     end
 
     function r_ij(i,j,thetaPrime)
-        #dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
         dotted = dot(R_1ij(i,j), t_hats[i,:])
         A = r_1ij(i,j)^3 * cos(thetaPrime)
         B = r_1ij(i,j) * cos(thetaPrime)*dotted^2
@@ -65,12 +68,10 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
         return (A - B - C)/(D)
     end
 
-    # --- Coefficient Functions ---
+    # === Coefficient Functions ===
     function Theta_ij(i,j)
-        #dottedT = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
         dottedT = dot(R_1ij(i,j), t_hats[i,:])
         if abs(dottedT) > 1e-14
-            #dottedN = dot(2,R_1ij(i,j),1,n_hats[i,:],1)
             dottedN = dot(R_1ij(i,j), n_hats[i,:])
             b2 = dottedT^2 - r_1ij(i,j)^2
             aLim = r_1ij(i,j)
@@ -79,20 +80,19 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
                 f = (exp((-r^2)/(2*sigma^2))/r)*(1/sqrt(abs(b2 + r^2)))
                 return f
             end
-            return (a*dottedN/pi)*(quadgk(f,aLim,bLim)[1])
+            return (dottedN/pi)*(quadgk(f,aLim,bLim)[1])
         else
             return 0
         end
     end
 
     function Lambda_ij(i,j)
-        #dotted = dot(2,R_1ij(i,j),1,t_hats[i,:],1)
         dotted = dot(R_1ij(i,j), t_hats[i,:])
         if abs(dotted) > 1e-14
             b2 = dotted^2 - r_1ij(i,j)^2
             aLim = r_1ij(i,j)
             bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dotted + r_1ij(i,j)^2)
-            g(r) = a*r*exp((-r^2)/(2*sigma^2))*(1/sqrt(b2 + r^2))
+            g(r) = r*exp((-r^2)/(2*sigma^2))*(1/sqrt(b2 + r^2))
             return quadgk(g,aLim,bLim)[1]
         else
             return 0
@@ -100,13 +100,26 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
     end
 
     function phi_ij(i,j)
-        return a*exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
+        return exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
     end
 
-    # Build coef matrix
-    matA = zeros(NPAN-1,NPAN-1)
-    for i=1:NPAN-1
-        for j=1:NPAN-1
+    # === Build coef matrix ===
+    #matA = zeros(NPAN-1,NPAN-1)
+    # for i=1:NPAN-1
+    #     for j=1:NPAN-1
+    #         if i == j
+    #             matA[i,j] = phi_ij(i,j)
+    #         else
+    #             t = Theta_ij(i,j)
+    #             l = Lambda_ij(i,j)
+    #             matA[i,j] = phi_ij(i,j) - t + l
+    #         end
+    #     end
+    # end
+
+    matA = zeros(NPTS, NPTS)
+    for i=1:NPTS
+        for j=1:NPTS
             if i == j
                 matA[i,j] = phi_ij(i,j)
             else
@@ -117,7 +130,19 @@ function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
         end
     end
 
-    return matA\RHS
+    #return matA\RHS
+
+    # === Solve Linear System ===
+    alpha = matA\RHS
+
+    # === Summation over all points for Gamma ===
+    gamma = 0
+    for i=1:NPTS
+        gamma = gamma + alpha[i] * RBF_gauss(norm(X_eval[1:2] - X[i]))
+        #gamma = gamma + alpha[i]*exp((-norm(X_eval[1:2] - panels[i].R1)^2)/(2*sigma^2))
+    end
+    return gamma
+
 end
 
 """
