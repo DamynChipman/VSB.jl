@@ -186,6 +186,7 @@ function CalcVSVelocityCirlce(boundary::Boundary,
 
     # === Integrand function ===
     function F(theta)
+        println("     - INSIDE F: THETA = ",theta)
         rP_hat = [cos(theta), sin(theta), 0]
         X_P = radius .* rP_hat
         gamma = CalcVS(boundary, alpha, X_P) .* [0, 0, 1]
