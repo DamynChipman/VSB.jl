@@ -199,9 +199,9 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     Fz(theta) = F(theta)[3]
 
     # === Evaluate integral ===
-    return [quadgk(Fx, 0, 2*pi, rtol=1e-6, maxevals=1e5)[1],
-            quadgk(Fy, 0, 2*pi, rtol=1e-6, maxevals=1e5)[1],
-            quadgk(Fz, 0, 2*pi, rtol=1e-6, maxevals=1e5)[1]]
+    return [quadgk(Fx, 0, 2*pi, rtol=1e-4, maxevals=1e5)[1],
+            quadgk(Fy, 0, 2*pi, rtol=1e-4, maxevals=1e5)[1],
+            quadgk(Fz, 0, 2*pi, rtol=1e-4, maxevals=1e5)[1]]
 end
 
 """
