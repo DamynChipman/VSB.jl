@@ -16,10 +16,9 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 """
 # function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
 #                              RHS::Array{Float64})
-function CalcVortexSheet(boundary::Boundary,
-                         X_eval::Array{T},
-                         RHS::Array{T}) where {T<:Real}
-
+function CalcVSCoef(boundary::Boundary,
+                    RHS::Array{T})
+                    where {T<:Real}
 
     # # Extract geometry from panels
     # NPAN = length(panels)
@@ -44,13 +43,6 @@ function CalcVortexSheet(boundary::Boundary,
     # === Helper Function Definitions ===
     X_1i(i) = X[i,:]
     X_2i(i) = (i != NPTS) ? X[i+1,:] : X[1,:]
-    # function X_2i(i)
-    #     if i != NPTS
-    #         return X[i+1,:]
-    #     else
-    #         return X[1,:]
-    #     end
-    # end
     Xj(j) = X[j,:]
     R_0i(i) = X_1i(i) - X_2i(i)
     R_1ij(i,j) = X_1i(i) - Xj(j)
@@ -141,14 +133,9 @@ function CalcVortexSheet(boundary::Boundary,
 
     # === Solve Linear System ===
     alpha = matA\RHS
+    return alpha
 
-    # === Summation over all points for Gamma ===
-    gamma = 0
-    for i=1:NPTS
-        gamma = gamma + alpha[i] * RBF_gauss(norm(X_eval[1:2] - X[i]))
-        #gamma = gamma + alpha[i]*exp((-norm(X_eval[1:2] - panels[i].R1)^2)/(2*sigma^2))
-    end
-    return gamma
+
 
 end
 
@@ -169,17 +156,56 @@ surface at the given X location.
 # OUTPUTS
 * `gamma::Float64`         : Contribution from all vortex particles at X
 """
-function CalcVortexSheet(panels::Array{SciTools.LineSegment},
-                         alpha::Array{Float64},
-                         X::Array{Float64};
-                         sigma::Float64=0.2,
-                         a::Float64=1.0)
-    gamma = 0
-    N = length(alpha)
-    for i=1:N
-        gamma = gamma + a*alpha[i]*exp((-norm(X[1:2] - panels[i].R1)^2)/(2*sigma^2))
+function CalcVS(boundary::Boundary,
+                RHS::Array{T},
+                X_eval::Array{T})
+                where {T<:Real}
+
+    # === Unpack geometry ===
+    XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
+    NPTS = boundary.NPTS_BODY
+
+    # === Calculate RBF coefficients ===
+    alpha = CalcVSCoef(boundary, RHS)
+
+    # === Summation over all points for Gamma ===
+    gamma = 0.0
+    for i=1:NPTS
+        gamma = gamma + alpha[i] * RBF_gauss(norm(X_eval - XP[i]))
     end
     return gamma
+
+end
+
+"""
+
+"""
+function CalcVSVelocityCirlce(boundary::Boundary,
+                              RHS::Array{T},
+                              X_eval::Array{T};
+                              radius=1.0)
+                              where {T<:Real}
+
+    # === Unpack geometry ===
+    XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
+    NPTS = boundary.NPTS_BODY
+
+    # === Integrand function ===
+    function F(theta)
+        rP_hat = [cos(theta), sin(theta), 0]
+        X_P = radius .* rP_hat
+        gamma = CalcVS(boundary, RHS, X_P) .* [0, 0, 1]
+        num = cross(X_eval - X_P, gamma) * radius
+        den = 4 * pi * norm(X_eval - X_P)^3
+        return num ./ den
+    end
+
+    Fx(theta) = F(theta)[1]
+    Fy(theta) = F(theta)[2]
+    Fz(theta) = F(theta)[3]
+
+    # === Evaluate integral ===
+    return [quadgk(Fx, 0, 2*pi)[1], quadgk(Fy, 0, 2*pi)[1], quadgk(Fz, 0, 2*pi)[1]]
 end
 
 """
