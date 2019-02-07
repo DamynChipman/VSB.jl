@@ -156,15 +156,12 @@ surface at the given X location.
 * `gamma::Float64`         : Contribution from all vortex particles at X
 """
 function CalcVS(boundary::Boundary,
-                RHS::Array{T},
+                alpha::Array{T},
                 X_eval::Array{T}) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
-
-    # === Calculate RBF coefficients ===
-    alpha = CalcVSCoef(boundary, RHS)
 
     # === Summation over all points for Gamma ===
     gamma = 0.0
@@ -179,7 +176,7 @@ end
 
 """
 function CalcVSVelocityCirlce(boundary::Boundary,
-                              RHS::Array{T},
+                              alpha::Array{T},
                               X_eval::Array{T};
                               radius=1.0) where {T<:Real}
 
@@ -191,7 +188,7 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     function F(theta)
         rP_hat = [cos(theta), sin(theta), 0]
         X_P = radius .* rP_hat
-        gamma = CalcVS(boundary, RHS, X_P) .* [0, 0, 1]
+        gamma = CalcVS(boundary, alpha, X_P) .* [0, 0, 1]
         num = cross(X_eval - X_P, gamma) * radius
         den = 4 * pi * norm(X_eval - X_P)^3
         return num ./ den
