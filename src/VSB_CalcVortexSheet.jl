@@ -17,8 +17,7 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 # function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
 #                              RHS::Array{Float64})
 function CalcVSCoef(boundary::Boundary,
-                    RHS::Array{T})
-                    where {T<:Real}
+                    RHS::Array{T}) where {T<:Real}
 
     # # Extract geometry from panels
     # NPAN = length(panels)
@@ -158,8 +157,7 @@ surface at the given X location.
 """
 function CalcVS(boundary::Boundary,
                 RHS::Array{T},
-                X_eval::Array{T})
-                where {T<:Real}
+                X_eval::Array{T}) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
@@ -183,8 +181,7 @@ end
 function CalcVSVelocityCirlce(boundary::Boundary,
                               RHS::Array{T},
                               X_eval::Array{T};
-                              radius=1.0)
-                              where {T<:Real}
+                              radius=1.0) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
