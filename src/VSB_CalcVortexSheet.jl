@@ -193,7 +193,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     A = zeros(NPTS,NPTS)
     for k in 1:NPTS
         for i in 1:NPTS
-            A[i,k] = phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i)
+            A[k,i] = phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i)
         end
     end
     #A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
