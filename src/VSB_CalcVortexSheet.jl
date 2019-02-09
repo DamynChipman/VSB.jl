@@ -235,7 +235,7 @@ function CalcVS(boundary::Boundary,
                 X_eval::Array{T}) where {T<:Real}
 
     # === Unpack geometry ===
-    XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
+    XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
 
     # === Summation over all points for Gamma ===
@@ -256,30 +256,47 @@ function CalcVSVelocityCirlce(boundary::Boundary,
                               radius=1.0) where {T<:Real}
 
     # === Unpack geometry ===
-    XP = [[point[1], point[2], 0] for point in boundary.bodyPTS]
+    X_body = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
 
-    # === Integrand function ===
-    function F(theta)
-        rP_hat = [cos(theta), sin(theta), 0]
-        X_P = radius .* rP_hat
-        gamma = CalcVS(boundary, alpha, X_P) .* [0, 0, 1]
-        num = cross(X_eval - X_P, gamma) * radius
-        den = 4 * pi * norm(X_eval - X_P)^3
-        return num ./ den
-    end
+    # === Function definitions ===
+    X_j(j) = X_body[j]                                       # Set_j of points on S
+    X_jp1(j) = (j != NPTS) ? X_body[j+1] : X_body[1]         # Point j + 1
 
-    Fx(theta) = F(theta)[1]
-    Fy(theta) = F(theta)[2]
-    Fz(theta) = F(theta)[3]
+    gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
+    del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
 
-    # === Evaluate integral ===
-    rtol = 1e-3
-    maxevals = 1e3
+    num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
+    den(j) = 4*pi * norm(X_eval - X_j(j))^3                  # Denominator
 
-    return [quadgk(Fx, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1],
-            quadgk(Fy, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1],
-            quadgk(Fz, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1]]
+    U = sum( [num(j) ./ den(j) for j in 1:NPTS] )
+    return U
+
+
+
+
+
+    # # === Integrand function ===
+    # function F(theta)
+    #     rP_hat = [cos(theta), sin(theta), 0]
+    #     X_P = radius .* rP_hat
+    #     gamma = CalcVS(boundary, alpha, X_P) .* [0, 0, 1]
+    #     num = cross(X_eval - X_P, gamma) * radius
+    #     den = 4 * pi * norm(X_eval - X_P)^3
+    #     return num ./ den
+    # end
+    #
+    # Fx(theta) = F(theta)[1]
+    # Fy(theta) = F(theta)[2]
+    # Fz(theta) = F(theta)[3]
+    #
+    # # === Evaluate integral ===
+    # rtol = 1e-3
+    # maxevals = 1e3
+    #
+    # return [quadgk(Fx, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1],
+    #         quadgk(Fy, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1],
+    #         quadgk(Fz, 0, 2*pi, rtol=rtol, maxevals=maxevals)[1]]
 end
 
 """
