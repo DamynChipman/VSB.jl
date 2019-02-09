@@ -202,7 +202,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     # === Calculate RHS vector ===
     b = zeros(NPTS)
     for i in 1:NPTS
-        b[i] = dot(2 .* U_slip(X_i(i)), t_hats[i])
+        b[i] = dot(U_slip(X_i(i)), t_hats[i])
     end
     #b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
     #println("b: ",b)
