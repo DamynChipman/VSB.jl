@@ -176,7 +176,14 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     rho_1 = 1                                           # ρ_1 of Eigendecomposition
 
     # === Coefficent functions ===
-    Theta_ki(k,i) = sum([((k != j) ? (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) : 0) for j in 1:NPTS] )
+    function Theta_ki(k,i)
+        res = 0
+        for j in 1:NPTS
+            res = res + (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2)
+        end
+        return res
+    end
+    #Theta_ki(k,i) = sum([((k != j) ? (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) : 0) for j in 1:NPTS] )
     Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1)/(L) for j in 1:NPTS] )
     phi_ki(k,i) = RBF_gauss(r_ki(k,i))
 
