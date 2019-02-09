@@ -17,7 +17,7 @@ The optional argument `deriv` is for the order of the derivative desired, meanin
 * `res`        : Calculated magnitude
 """
 function RBF_gauss(R::Float64;
-                   A=1.0,sigma=1.0,deriv=0)
+                   A=1/(2*pi),sigma=1.0,deriv=0)
 
     if deriv == 0
         res = A*exp(-(R^2)/(2*sigma^2))
