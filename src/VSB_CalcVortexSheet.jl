@@ -202,7 +202,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     # === Calculate RHS vector ===
     b = zeros(NPTS)
     for i in 1:NPTS
-        b[i] = dot(U_slip(X_i(i)), t_hats[i])
+        b[i] = dot(2 .* U_slip(X_i(i)), t_hats[i])
     end
     #b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
     #println("b: ",b)
@@ -265,8 +265,8 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
     del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
 
-    num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
-    den(j) = -2*pi * r_xj(j)^2                                # Denominator
+    num(j) = -cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
+    den(j) = 2*pi * r_xj(j)^2                                # Denominator
 
     # === Calculate velocity ===
     U = sum( [((r_xj(j) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
