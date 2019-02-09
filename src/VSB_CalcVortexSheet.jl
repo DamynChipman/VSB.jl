@@ -172,7 +172,6 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
 
     del_S(j) = norm(X_j(j) - X_jp1(j))                  # ΔS_j
     L = sum( [del_S(j) for j in 1:NPTS] )               # Length of surface
-    println("IN CALCVSCOEF: L = ",L)
 
     rho_1 = 1                                           # ρ_1 of Eigendecomposition
 
@@ -183,9 +182,11 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
 
     # === Calculate coefficient matrix ===
     A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
+    println("A: ",A)
 
     # === Calculate RHS vector ===
     b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
+    println("b: ",b)
 
     # === Calculate alpha coefficients ===
     alphas = A\b
