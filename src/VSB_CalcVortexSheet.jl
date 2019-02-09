@@ -265,7 +265,7 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
     del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
 
-    num(j) = -cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
+    num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
     den(j) = 2*pi * r_xj(j)^2                                # Denominator
 
     # === Calculate velocity ===
