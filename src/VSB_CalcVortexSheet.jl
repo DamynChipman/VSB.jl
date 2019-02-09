@@ -266,7 +266,7 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
 
     num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
-    den(j) = 2*pi * r_xj(j)^3                                # Denominator
+    den(j) = 1*pi * r_xj(j)^3                                # Denominator
 
     # === Calculate velocity ===
     U = sum( [((r_xj(j) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
