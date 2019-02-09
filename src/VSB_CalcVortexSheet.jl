@@ -238,11 +238,8 @@ function CalcVS(boundary::Boundary,
     XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
 
-    # === Summation over all points for Gamma ===
-    gamma = 0.0
-    for i=1:NPTS
-        gamma = gamma + alpha[i] * RBF_gauss(norm(X_eval - XP[i]))
-    end
+    # === Summation over all points for gamma ===
+    gamma = sum( [alpha[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
     return gamma
 
 end
@@ -269,7 +266,7 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
     den(j) = 4*pi * norm(X_eval - X_j(j))^3                  # Denominator
 
-    U = sum( [num(j) ./ den(j) for j in 1:NPTS] )
+    U = sum( [((norm(X_eval - X_j(j)) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
     return U
 
 
