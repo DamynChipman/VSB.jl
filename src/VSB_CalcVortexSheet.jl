@@ -180,7 +180,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
         res = 0
         for j in 1:NPTS
             if j != k
-                res = res + (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2)
+                res = res + (1/(2*pi)) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^3)
             end
         end
         return res
