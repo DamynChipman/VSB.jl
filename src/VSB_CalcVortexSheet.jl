@@ -190,11 +190,21 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     phi_ki(k,i) = RBF_gauss(r_ki(k,i))
 
     # === Calculate coefficient matrix ===
-    A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
+    A = zeros(NPTS,NPTS)
+    for k in 1:NPTS
+        for i in 1:NPTS
+            A[k,i] = phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i)
+        end
+    end
+    #A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
     println("A: ",A)
 
     # === Calculate RHS vector ===
-    b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
+    b = zeros(NPTS)
+    for i in 1:NPTS
+        b[i] = dot(U_slip(X_i(i)), t_hats[i])
+    end
+    #b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
     println("b: ",b)
 
     # === Calculate alpha coefficients ===
