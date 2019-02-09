@@ -193,7 +193,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     A = zeros(NPTS,NPTS)
     for k in 1:NPTS
         for i in 1:NPTS
-            A[k,i] = phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i)
+            A[i,k] = phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i)
         end
     end
     #A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
@@ -259,14 +259,17 @@ function CalcVSVelocityCirlce(boundary::Boundary,
     # === Function definitions ===
     X_j(j) = X_body[j]                                       # Set_j of points on S
     X_jp1(j) = (j != NPTS) ? X_body[j+1] : X_body[1]         # Point j + 1
+    R_xj(j) = X_eval - X_j(j)                                # X_eval - X_j
+    r_xj(j) = norm(R_xj(j))                                  # | X_eval - X_j |
 
     gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
     del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
 
     num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
-    den(j) = 4*pi * norm(X_eval - X_j(j))^3                  # Denominator
+    den(j) = 4*pi * r_xj(j)^3                                # Denominator
 
-    U = sum( [((norm(X_eval - X_j(j)) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
+    # === Calculate velocity ===
+    U = sum( [((r_xj(j) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
     return U
 
 
