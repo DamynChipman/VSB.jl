@@ -144,7 +144,7 @@ end
 """
 `CalcVSCoefs(boundary, U_slip)`
 """
-function CalcVSCoefs(boundary::Boundary, U_slip=nothing)
+function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothing)
 
     # === Extract geometry from boundary ===
     X_body = [[point[1], point[2]] for point in boundary.bodyPTS]
