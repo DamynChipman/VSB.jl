@@ -98,7 +98,9 @@ function CalcVSCoef(boundary::Boundary,
     end
 
     function phi_ij(i,j)
-        return exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
+        R = norm(X_1i(j) - X_1i(i))
+        return RBF_gauss(R)
+        #return exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
     end
 
     # === Build coef matrix ===
@@ -115,6 +117,7 @@ function CalcVSCoef(boundary::Boundary,
     #     end
     # end
 
+    #matA = [[(i == j) ? phi_ij(i,j) : phi_ij(i,j) - Theta_ij(i,j) + Lambda_ij(i,j) for j in 1:NPTS] for i in 1:NPTS]
     matA = zeros(NPTS, NPTS)
     for i=1:NPTS
         for j=1:NPTS
@@ -135,6 +138,58 @@ function CalcVSCoef(boundary::Boundary,
     return alpha
 
 
+
+end
+
+"""
+`CalcVSCoefs(boundary, U_slip)`
+"""
+function CalcVSCoefs(boundary::Boundary, U_slip=nothing)
+
+    # === Extract geometry from boundary ===
+    X_body = [[point[1], point[2]] for point in boundary.bodyPTS]
+    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
+    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
+    NPTS = boundary.NPTS_BODY
+
+    # === Function definitions ===
+
+    # i -> RBF index
+    # j -> Integration index
+    # k -> Evaluation index
+
+    X_i(i) = X_body[i]                                  # Set_i of points on S
+    X_j(j) = X_body[j]                                  # Set_j of points on S
+    X_jp1(j) = (j != NPTS) ? X_body[j+1] : X_body[1]    # Point j + 1
+    X_k(k) = X_body[k]                                  # Set_k of points on S
+
+    R_kj(k,j) = X_k(k) - X_j(j)                         # X_k - X_j
+    R_ji(j,i) = X_j(j) - X_i(i)                         # X_j - X_i
+    R_ki(k,i) = X_k(k) - X_i(i)                         # X_k - X_i
+    r_kj(k,j) = norm(R_kj(k,j))                         # | X_k - X_j |
+    r_ji(j,i) = norm(R_ji(j,i))                         # | X_j - X_i |
+    r_ki(k,i) = norm(R_ki(k,i))                         # | X_k - X_i |
+
+    del_S(j) = norm(X_j(j) - X_jp1(j))                  # ΔS_j
+    L = sum( [del_S(j) for j in 1:NPTS] )               # Length of surface
+    println("IN CALCVSCOEF: L = ",L)
+
+    rho_1 = 1                                           # ρ_1 of Eigendecomposition
+
+    # === Coefficent functions ===
+    Theta_ki(k,i) = sum( [(1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) for j in 1:NPTS] )
+    Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1)/(L) for j in 1:NPTS] )
+    phi_ki(k,i) = RBF_gauss(r_ki)
+
+    # === Calculate coefficient matrix ===
+    A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
+
+    # === Calculate RHS vector ===
+    b = [dot(U_slip(X_i(i)), t_hats[i]) for i in 1:NPTS]
+
+    # === Calculate alpha coefficients ===
+    alphas = A\b
+    return alphas
 
 end
 
