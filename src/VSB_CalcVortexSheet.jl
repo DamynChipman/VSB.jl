@@ -179,7 +179,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     # === Coefficent functions ===
     Theta_ki(k,i) = sum( [(1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) for j in 1:NPTS] )
     Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1)/(L) for j in 1:NPTS] )
-    phi_ki(k,i) = RBF_gauss(r_ki)
+    phi_ki(k,i) = RBF_gauss(r_ki(k,i))
 
     # === Calculate coefficient matrix ===
     A = [ [phi_ki(k,i) - Theta_ki(k,i) + Lambda_ki(k,i) for k in 1:NPTS] for i in 1:NPTS]
