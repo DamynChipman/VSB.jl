@@ -87,7 +87,7 @@ end
 function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}) where {T<:Real}
 
     # === Unpack geometry ===
-    XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
+    XP = [[point[1], point[2], 0.0] for point in self.bodyPTS]
     NPTS = self.NPTS_BODY
 
     # === Summation over all points for gamma ===
