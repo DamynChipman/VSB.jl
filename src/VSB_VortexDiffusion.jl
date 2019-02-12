@@ -37,8 +37,10 @@ function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
     for point in X
         push!(XPTS, point)
     end
-    for particle in pfield.particles
-        push!(XPTS, particle.X)
+    if length(pfield.particles) != 0
+        for particle in pfield.particles
+            push!(XPTS, particle.X)
+        end
     end
 
     # === Build matrix ===
