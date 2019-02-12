@@ -172,8 +172,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
 
     del_S(j) = norm(X_j(j) - X_jp1(j))                  # ΔS_j
     L = sum( [del_S(j) for j in 1:NPTS] )               # Length of surface
-
-    rho_1 = 1                                           # ρ_1 of Eigendecomposition
+    rho_1(k) = CalcRho(boundary, X_k[k])                # ρ_1 of Eigendecomposition
 
     # === Coefficent functions ===
     function Theta_ki(k,i)
@@ -186,7 +185,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
         return res
     end
     #Theta_ki(k,i) = sum([((k != j) ? (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) : 0) for j in 1:NPTS] )
-    Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1)/(L) for j in 1:NPTS] )
+    Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1(k))/(L) for j in 1:NPTS] )
     phi_ki(k,i) = RBF_gauss(r_ki(k,i))
 
     # === Calculate coefficient matrix ===
