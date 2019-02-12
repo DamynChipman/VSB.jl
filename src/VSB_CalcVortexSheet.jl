@@ -172,7 +172,9 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
 
     del_S(j) = norm(X_j(j) - X_jp1(j))                  # ΔS_j
     L = sum( [del_S(j) for j in 1:NPTS] )               # Length of surface
-    rho_1(k) = CalcRho(boundary, X_k[k])                # ρ_1 of Eigendecomposition
+
+    etas = CalcRhoCoefs(boundary)                       # Coefficients for rho RBF 
+    rho_1(k) = CalcRho(boundary, etas, X_k[k])          # ρ_1 of Eigendecomposition
 
     # === Coefficent functions ===
     function Theta_ki(k,i)

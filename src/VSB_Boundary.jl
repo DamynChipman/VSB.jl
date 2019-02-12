@@ -84,14 +84,11 @@ end
 """
 
 """
-function CalcRho(self::Boundary, X_eval::Array{T}) where {T<:Real}
+function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
-
-    # === Calculate coefficients ===
-    etas = CalcRhoCoefs(self)
 
     # === Summation over all points for gamma ===
     rho = sum( [etas[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
