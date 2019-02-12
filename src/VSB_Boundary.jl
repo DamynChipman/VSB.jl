@@ -20,7 +20,7 @@ end
 """
 
 """
-function CalcRhoCoefs(self::Boundary, X_eval::Array{T}) where {T<:Real}
+function CalcRhoCoefs(self::Boundary)
 
     # === Extract geometry from boundary ===
     X_body = [[point[1], point[2], 0.0] for point in self.bodyPTS]
@@ -78,5 +78,23 @@ function CalcRhoCoefs(self::Boundary, X_eval::Array{T}) where {T<:Real}
     # === Solve linear system ===
     etas = A\b
     return etas
+
+end
+
+"""
+
+"""
+function CalcRho(self::Boundary, X_eval::Array{T}) where {T<:Real}
+
+    # === Unpack geometry ===
+    XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
+    NPTS = boundary.NPTS_BODY
+
+    # === Calculate coefficients ===
+    etas = CalcRhoCoefs(self)
+
+    # === Summation over all points for gamma ===
+    rho = sum( [etas[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    return rho
 
 end
