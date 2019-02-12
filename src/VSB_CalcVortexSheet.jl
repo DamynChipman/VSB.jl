@@ -16,130 +16,130 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 """
 # function CalcVortexSheetCoef(panels::Array{SciTools.LineSegment},
 #                              RHS::Array{Float64})
-function CalcVSCoef(boundary::Boundary,
-                    RHS::Array{T}) where {T<:Real}
-
-    # # Extract geometry from panels
-    # NPAN = length(panels)
-    # n_hats = zeros(NPAN,2)
-    # t_hats = zeros(NPAN,2)
-    # X = zeros(NPAN,2)
-    # for n=1:NPAN
-    #     n_hats[n,:] = panels[n].n_hat
-    #     t_hats[n,:] = panels[n].t_hat
-    #     X[n,1] = panels[n].R1[1]
-    #     X[n,2] = panels[n].R1[2]
-    # end
-
-    X = [[point[1], point[2]] for point in boundary.bodyPTS]
-    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
-    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
-    NPTS = boundary.NPTS_BODY
-
-    # Guassian spreading and normalization constant
-    sigma = 1.0
-
-    # === Helper Function Definitions ===
-    X_1i(i) = X[i,:]
-    X_2i(i) = (i != NPTS) ? X[i+1,:] : X[1,:]
-    Xj(j) = X[j,:]
-    R_0i(i) = X_1i(i) - X_2i(i)
-    R_1ij(i,j) = X_1i(i) - Xj(j)
-    R_2ij(i,j) = X_2i(i) - Xj(j)
-    r_0i(i) = norm(R_0i(i))
-    r_1ij(i,j) = norm(R_1ij(i,j))
-    r_2ij(i,j) = norm(R_2ij(i,j))
-    function theta_ij(i,j)
-        R1 = [R_1ij(i,j)[1],R_1ij(i,j)[2],0]
-        R2 = [R_2ij(i,j)[1],R_2ij(i,j)[2],0]
-        num = norm(cross(R1,R2))
-        den = dot(R_1ij(i,j), R_2ij(i,j))
-        return atan2(num,den)
-    end
-
-    function r_ij(i,j,thetaPrime)
-        dotted = dot(R_1ij(i,j), t_hats[i,:])
-        A = r_1ij(i,j)^3 * cos(thetaPrime)
-        B = r_1ij(i,j) * cos(thetaPrime)*dotted^2
-        C = sqrt(abs(r_1ij(i,j)^4 * dotted^2 * sin(thetaPrime)^2 - dotted^4 * sin(thetaPrime)^2))
-        D = r_1ij(i,j)^2 * cos(thetaPrime)^2 - dotted^2
-        return (A - B - C)/(D)
-    end
-
-    # === Coefficient Functions ===
-    function Theta_ij(i,j)
-        dottedT = dot(R_1ij(i,j), t_hats[i,:])
-        if abs(dottedT) > 1e-14
-            dottedN = dot(R_1ij(i,j), n_hats[i,:])
-            b2 = dottedT^2 - r_1ij(i,j)^2
-            aLim = r_1ij(i,j)
-            bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dottedT + r_1ij(i,j)^2)
-            function f(r)
-                f = (exp((-r^2)/(2*sigma^2))/r)*(1/sqrt(abs(b2 + r^2)))
-                return f
-            end
-            return (dottedN/pi)*(quadgk(f,aLim,bLim)[1])
-        else
-            return 0
-        end
-    end
-
-    function Lambda_ij(i,j)
-        dotted = dot(R_1ij(i,j), t_hats[i,:])
-        if abs(dotted) > 1e-14
-            b2 = dotted^2 - r_1ij(i,j)^2
-            aLim = r_1ij(i,j)
-            bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dotted + r_1ij(i,j)^2)
-            g(r) = r*exp((-r^2)/(2*sigma^2))*(1/sqrt(b2 + r^2))
-            return quadgk(g,aLim,bLim)[1]
-        else
-            return 0
-        end
-    end
-
-    function phi_ij(i,j)
-        R = norm(X_1i(j) - X_1i(i))
-        return RBF_gauss(R)
-        #return exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
-    end
-
-    # === Build coef matrix ===
-    #matA = zeros(NPAN-1,NPAN-1)
-    # for i=1:NPAN-1
-    #     for j=1:NPAN-1
-    #         if i == j
-    #             matA[i,j] = phi_ij(i,j)
-    #         else
-    #             t = Theta_ij(i,j)
-    #             l = Lambda_ij(i,j)
-    #             matA[i,j] = phi_ij(i,j) - t + l
-    #         end
-    #     end
-    # end
-
-    #matA = [[(i == j) ? phi_ij(i,j) : phi_ij(i,j) - Theta_ij(i,j) + Lambda_ij(i,j) for j in 1:NPTS] for i in 1:NPTS]
-    matA = zeros(NPTS, NPTS)
-    for i=1:NPTS
-        for j=1:NPTS
-            if i == j
-                matA[i,j] = phi_ij(i,j)
-            else
-                t = Theta_ij(i,j)
-                l = Lambda_ij(i,j)
-                matA[i,j] = phi_ij(i,j) - t + l
-            end
-        end
-    end
-
-    #return matA\RHS
-
-    # === Solve Linear System ===
-    alpha = matA\RHS
-    return alpha
-
-
-
-end
+# function CalcVSCoef(boundary::Boundary,
+#                     RHS::Array{T}) where {T<:Real}
+#
+#     # # Extract geometry from panels
+#     # NPAN = length(panels)
+#     # n_hats = zeros(NPAN,2)
+#     # t_hats = zeros(NPAN,2)
+#     # X = zeros(NPAN,2)
+#     # for n=1:NPAN
+#     #     n_hats[n,:] = panels[n].n_hat
+#     #     t_hats[n,:] = panels[n].t_hat
+#     #     X[n,1] = panels[n].R1[1]
+#     #     X[n,2] = panels[n].R1[2]
+#     # end
+#
+#     X = [[point[1], point[2]] for point in boundary.bodyPTS]
+#     n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
+#     t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
+#     NPTS = boundary.NPTS_BODY
+#
+#     # Guassian spreading and normalization constant
+#     sigma = 1.0
+#
+#     # === Helper Function Definitions ===
+#     X_1i(i) = X[i,:]
+#     X_2i(i) = (i != NPTS) ? X[i+1,:] : X[1,:]
+#     Xj(j) = X[j,:]
+#     R_0i(i) = X_1i(i) - X_2i(i)
+#     R_1ij(i,j) = X_1i(i) - Xj(j)
+#     R_2ij(i,j) = X_2i(i) - Xj(j)
+#     r_0i(i) = norm(R_0i(i))
+#     r_1ij(i,j) = norm(R_1ij(i,j))
+#     r_2ij(i,j) = norm(R_2ij(i,j))
+#     function theta_ij(i,j)
+#         R1 = [R_1ij(i,j)[1],R_1ij(i,j)[2],0]
+#         R2 = [R_2ij(i,j)[1],R_2ij(i,j)[2],0]
+#         num = norm(cross(R1,R2))
+#         den = dot(R_1ij(i,j), R_2ij(i,j))
+#         return atan2(num,den)
+#     end
+#
+#     function r_ij(i,j,thetaPrime)
+#         dotted = dot(R_1ij(i,j), t_hats[i,:])
+#         A = r_1ij(i,j)^3 * cos(thetaPrime)
+#         B = r_1ij(i,j) * cos(thetaPrime)*dotted^2
+#         C = sqrt(abs(r_1ij(i,j)^4 * dotted^2 * sin(thetaPrime)^2 - dotted^4 * sin(thetaPrime)^2))
+#         D = r_1ij(i,j)^2 * cos(thetaPrime)^2 - dotted^2
+#         return (A - B - C)/(D)
+#     end
+#
+#     # === Coefficient Functions ===
+#     function Theta_ij(i,j)
+#         dottedT = dot(R_1ij(i,j), t_hats[i,:])
+#         if abs(dottedT) > 1e-14
+#             dottedN = dot(R_1ij(i,j), n_hats[i,:])
+#             b2 = dottedT^2 - r_1ij(i,j)^2
+#             aLim = r_1ij(i,j)
+#             bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dottedT + r_1ij(i,j)^2)
+#             function f(r)
+#                 f = (exp((-r^2)/(2*sigma^2))/r)*(1/sqrt(abs(b2 + r^2)))
+#                 return f
+#             end
+#             return (dottedN/pi)*(quadgk(f,aLim,bLim)[1])
+#         else
+#             return 0
+#         end
+#     end
+#
+#     function Lambda_ij(i,j)
+#         dotted = dot(R_1ij(i,j), t_hats[i,:])
+#         if abs(dotted) > 1e-14
+#             b2 = dotted^2 - r_1ij(i,j)^2
+#             aLim = r_1ij(i,j)
+#             bLim = sqrt(r_0i(i)^2 - 2*r_0i(i)*dotted + r_1ij(i,j)^2)
+#             g(r) = r*exp((-r^2)/(2*sigma^2))*(1/sqrt(b2 + r^2))
+#             return quadgk(g,aLim,bLim)[1]
+#         else
+#             return 0
+#         end
+#     end
+#
+#     function phi_ij(i,j)
+#         R = norm(X_1i(j) - X_1i(i))
+#         return RBF_gauss(R)
+#         #return exp(-norm(X_1i(j) - X_1i(i))/(2*sigma^2))
+#     end
+#
+#     # === Build coef matrix ===
+#     #matA = zeros(NPAN-1,NPAN-1)
+#     # for i=1:NPAN-1
+#     #     for j=1:NPAN-1
+#     #         if i == j
+#     #             matA[i,j] = phi_ij(i,j)
+#     #         else
+#     #             t = Theta_ij(i,j)
+#     #             l = Lambda_ij(i,j)
+#     #             matA[i,j] = phi_ij(i,j) - t + l
+#     #         end
+#     #     end
+#     # end
+#
+#     #matA = [[(i == j) ? phi_ij(i,j) : phi_ij(i,j) - Theta_ij(i,j) + Lambda_ij(i,j) for j in 1:NPTS] for i in 1:NPTS]
+#     matA = zeros(NPTS, NPTS)
+#     for i=1:NPTS
+#         for j=1:NPTS
+#             if i == j
+#                 matA[i,j] = phi_ij(i,j)
+#             else
+#                 t = Theta_ij(i,j)
+#                 l = Lambda_ij(i,j)
+#                 matA[i,j] = phi_ij(i,j) - t + l
+#             end
+#         end
+#     end
+#
+#     #return matA\RHS
+#
+#     # === Solve Linear System ===
+#     alpha = matA\RHS
+#     return alpha
+#
+#
+#
+# end
 
 """
 `CalcVSCoefs(boundary, U_slip)`
@@ -314,48 +314,48 @@ and an X location, calculates the velocity induced by the vortex sheet at that p
 # OUTPUTS
 * `u_vor::Float64`         : Calculated velocity from vortex sheet
 """
-function CalcVortexSheetVelocity(panels::Array{SciTools.LineSegment},
-                                 alpha::Array{Float64},
-                                 X::Array{Float64};
-                                 smoothRadius=1e-6,
-                                 sigma::Float64=0.2,
-                                 a::Float64=1.0)
-
-    # Extract geometry from panels
-    NPAN = length(panels)
-    XP = zeros(NPAN,3)
-    for n=1:NPAN
-        XP[n,1] = panels[n].R1[1]
-        XP[n,2] = panels[n].R1[2]
-    end
-
-    # Geometry function definitions
-    R0(X1,X2) = X1 - X2
-    R1(X,X1) = X - X1
-    R2(X,X2) = X - X2
-    r0(X1,X2) = norm(R0(X1,X2))
-    r1(X,X1) = norm(R1(X,X1))
-    r2(X,X2) = norm(R1(X,X2))
-
-    # Velocity function
-    function U(X,X1,X2,Gamma)
-        A = Gamma/(4*pi)
-        B = cross(R1(X,X1),R2(X,X2))/(norm(cross(R1(X,X1),R2(X,X2)))^2)
-        C = (dot(R0(X1,X2),R1(X,X1)))/(r1(X,X1))
-        D = (dot(R0(X1,X2),R2(X,X2)))/(r2(X,X2))
-        u = A * B * (C - D)
-        return u
-    end
-
-    U_VS = zeros(3,1)
-    for i=1:NPAN-1
-        gamma = CalcVortexSheet(panels,alpha,X,sigma=sigma,a=a)
-        toAdd = U(X,XP[i,:],XP[i+1,:],gamma*panels[i].L)
-        if isnan.(toAdd[1]) == false
-            U_VS = U_VS + toAdd
-        end
-
-    end
-
-    return U_VS
-end
+# function CalcVortexSheetVelocity(panels::Array{SciTools.LineSegment},
+#                                  alpha::Array{Float64},
+#                                  X::Array{Float64};
+#                                  smoothRadius=1e-6,
+#                                  sigma::Float64=0.2,
+#                                  a::Float64=1.0)
+#
+#     # Extract geometry from panels
+#     NPAN = length(panels)
+#     XP = zeros(NPAN,3)
+#     for n=1:NPAN
+#         XP[n,1] = panels[n].R1[1]
+#         XP[n,2] = panels[n].R1[2]
+#     end
+#
+#     # Geometry function definitions
+#     R0(X1,X2) = X1 - X2
+#     R1(X,X1) = X - X1
+#     R2(X,X2) = X - X2
+#     r0(X1,X2) = norm(R0(X1,X2))
+#     r1(X,X1) = norm(R1(X,X1))
+#     r2(X,X2) = norm(R1(X,X2))
+#
+#     # Velocity function
+#     function U(X,X1,X2,Gamma)
+#         A = Gamma/(4*pi)
+#         B = cross(R1(X,X1),R2(X,X2))/(norm(cross(R1(X,X1),R2(X,X2)))^2)
+#         C = (dot(R0(X1,X2),R1(X,X1)))/(r1(X,X1))
+#         D = (dot(R0(X1,X2),R2(X,X2)))/(r2(X,X2))
+#         u = A * B * (C - D)
+#         return u
+#     end
+#
+#     U_VS = zeros(3,1)
+#     for i=1:NPAN-1
+#         gamma = CalcVortexSheet(panels,alpha,X,sigma=sigma,a=a)
+#         toAdd = U(X,XP[i,:],XP[i+1,:],gamma*panels[i].L)
+#         if isnan.(toAdd[1]) == false
+#             U_VS = U_VS + toAdd
+#         end
+#
+#     end
+#
+#     return U_VS
+# end
