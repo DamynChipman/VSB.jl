@@ -10,41 +10,54 @@
 * () : []
 
 """
-function VortexDiffusion(pfield::SVPM.ParticleField,
-                         boundary::Boundary,
-                         X_eval::Array{T},
-                         dt::Real,
-                         RHS::Array{T};
-                         theta_CN::Real=0.5) where {T<:Real}
+function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
+                            boundary::Boundary,
+                            alphas::Array{T},
+                            dt::Real;
+                            theta_CN::Real=0.5) where {T<:Real}
 
 
-    # Constants
-    N_BODY = boundary.NPTS_BODY
-    N_FIELD = length(pfield.particles)
+    # === Extract geometry from boundary ===
+    X = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
+    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
+    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
+    NBODY = boundary.NPTS_BODY
+    NFIELD = length(pfield.particles)
+
+    # === Constants ===
     CONST1 = pfield.nu * dt * theta_CN
-    X = [[point[1], point[2]] for point in boundary.bodyPTS]
+    CONST2 = pfield.nu * dt
 
-    # Helper functions
+    # === Helper functions ===
     rHat(X1,X2) = (X1 - X2)/(norm(X1 - X2))
     r(X1,X2) = norm(X1 - X2)
 
-    # Build matrix
-    A = zeros(N_FIELD,N_FIELD)
+    # === Set of points: Union of points from surface and particle field ===
+    XPTS = []
+    for point in X
+        push!(XPTS, point)
+    end
+    for particle in pfield.particles
+        push!(XPTS, particle.X)
+    end
+
+    # === Build matrix ===
+    matA = zeros(NFIELD, NFIELD)
 
     # NxM Matrix (upper half)
-    for i = 1:N_BODY
-        for j = 1:N_FIELD
+    for i = 1:NBODY
+        for j = 1:NFIELD
             if i != j
-                Xi = pfield.particles[i].X
-                Xj = pfield.particles[j].X
-                R = r(Xi,Xj)
-                RHAT = rHat(Xi,Xj)
-                A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
+                R = XPTS[j] - XPTS[i]
+                r = norm(R)
+                r_hat = R ./ r
+                matA[i,j] = dot(RBF_gauss(r, deriv=1) .* r_hat, boundary.nHats[i])
                 #println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
             else
-                R = 0.0
-                RHAT = [0.0, 0.0, 0.0]
-                A[i,j] = dot(RBF_gauss(R,deriv=1).*RHAT, boundary.nHats[i])
+                R = [0.0, 0.0, 0.0]
+                r = 0.0
+                r_hat = [0.0, 0.0, 0.0]
+                matA[i,j] = dot(RBF_gauss(r, deriv=1) .* r_hat, boundary.nHats[i])
                 #println("I == J ... A[",i,", ",j,"] = ",A[i,j])
             end
 
@@ -52,31 +65,46 @@ function VortexDiffusion(pfield::SVPM.ParticleField,
     end
 
     # (M-N+1)xM matrix (lower half)
-    for i = (N_BODY+1):N_FIELD
-        for j = 1:N_FIELD
+    for i = (NBODY+1):NFIELD
+        for j = 1:NFIELD
             if i != j
-                Xi = pfield.particles[i].X
-                Xj = pfield.particles[j].X
-                R = r(Xi,Xj)
-                A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
+                R = XPTS[j] - XPTS[i]
+                r = norm(R)
+                matA[i,j] = RBF_gauss(r, deriv=0) - CONST1 * RBF_gauss(R, deriv=2)
                 #println(" Xi = ",Xi," ... Xj = ",Xj," ... R = ",R," ... A[",i,", ",j,"] = ",A[i,j])
             else
-                R = 0.0
-                A[i,j] = RBF_gauss(R,deriv=0) - CONST1 * RBF_gauss(R,deriv=2)
+                R = [0.0, 0.0, 0.0]
+                r = 0.0
+                matA[i,j] = RBF_gauss(r, deriv=0) - CONST1 * RBF_gauss(R, deriv=2)
                 #println("I == J ... A[",i,", ",j,"] = ",A[i,j])
             end
         end
     end
 
-    # Solve system for coefs
-    beta = A\RHS
-    # println("BETA INSIDE DIFFUSION:")
-    # println(beta)
-
-    omega = 0
-    for i=1:N_BODY
-        omega = omega + beta[i] * RBF_gauss(norm(X_eval[1:2] - X[i]))
+    # === Build RHS ===
+    RHS = zeros(NFIELD)
+    for i = 1:NBODY
+        RHS[i] = CalcVS(boundary, alphas, X[i]) / CONST2
     end
-    return omega
 
+    # === Solve system for coefs ===
+    beta = matA\RHS
+    return beta
+
+end
+
+"""
+
+"""
+function CalcDiffusion(boundary::Boundary,
+                       beta::Array{T},
+                       X_eval::Array{T}) where {T<:Real}
+
+    # === Unpack geometry ===
+    XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
+    NPTS = boundary.NPTS_BODY
+
+    # === Summation over all points for gamma ===
+    omega = sum( [beta[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    return omega
 end
