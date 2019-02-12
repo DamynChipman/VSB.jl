@@ -22,15 +22,10 @@ function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
     n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
     t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
     NBODY = boundary.NPTS_BODY
-    NFIELD = length(pfield.particles)
 
     # === Constants ===
     CONST1 = pfield.nu * dt * theta_CN
     CONST2 = pfield.nu * dt
-
-    # === Helper functions ===
-    rHat(X1,X2) = (X1 - X2)/(norm(X1 - X2))
-    r(X1,X2) = norm(X1 - X2)
 
     # === Set of points: Union of points from surface and particle field ===
     XPTS = []
@@ -42,6 +37,7 @@ function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
             push!(XPTS, particle.X)
         end
     end
+    NFIELD = length(XPTS)
 
     # === Build matrix ===
     matA = zeros(NFIELD, NFIELD)
