@@ -88,7 +88,7 @@ function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}) where {T<:Rea
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
-    NPTS = boundary.NPTS_BODY
+    NPTS = self.NPTS_BODY
 
     # === Summation over all points for gamma ===
     rho = sum( [etas[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
