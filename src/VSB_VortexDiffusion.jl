@@ -73,7 +73,7 @@ function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
             else
                 R = [0.0, 0.0, 0.0]
                 r = 0.0
-                matA[i,j] = RBF_gauss(r, deriv=0) - CONST1 * RBF_gauss(t, deriv=2)
+                matA[i,j] = RBF_gauss(r, deriv=0) - CONST1 * RBF_gauss(r, deriv=2)
                 #println("I == J ... A[",i,", ",j,"] = ",A[i,j])
             end
         end
