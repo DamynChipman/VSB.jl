@@ -238,7 +238,7 @@ function CalcVS(boundary::Boundary,
     NPTS = boundary.NPTS_BODY
 
     # === Summation over all points for gamma ===
-    gamma = sum( [alpha[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    gamma = -sum( [alpha[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
     return gamma
 
 end
