@@ -144,7 +144,7 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 """
 `CalcVSCoefs(boundary, U_slip)`
 """
-function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothing)
+function CalcVSCoefs(boundary::Boundary, etas::Array{T}; U_slip::Union{Nothing, Function}=nothing) where {T<:Real}
 
     # === Extract geometry from boundary ===
     X_body = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
@@ -173,7 +173,7 @@ function CalcVSCoefs(boundary::Boundary; U_slip::Union{Nothing, Function}=nothin
     del_S(j) = norm(X_j(j) - X_jp1(j))                  # ΔS_j
     L = sum( [del_S(j) for j in 1:NPTS] )               # Length of surface
 
-    etas = CalcRhoCoefs(boundary)                       # Coefficients for rho RBF
+    #etas = CalcRhoCoefs(boundary)                       # Coefficients for rho RBF
     rho_1(k) = CalcRho(boundary, etas, X_k(k))          # ρ_1 of Eigendecomposition
 
     # === Coefficent functions ===
