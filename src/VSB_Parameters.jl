@@ -11,7 +11,7 @@ mutable struct Parameters
     function Parameters(boundary, U_field)
 
         etas = CalcRhoCoefs(boundary)
-        alphas = CalcVSCoefs(boundary, etas, U_field)
+        alphas = CalcVSCoefs(boundary, etas, U_slip = U_field)
 
         new(boundary, U_field, alphas, etas)
 
