@@ -26,7 +26,8 @@ file_names = ["RBF",
               "SVPMRunTime",
               "Boundary",
               "CalcVortexSheet",
-              "VortexDiffusion"]
+              "VortexDiffusion",
+              "Parameters"]
 for header_name in file_names
     include("VSB_"*header_name*".jl")
 end
