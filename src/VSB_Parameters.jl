@@ -4,7 +4,7 @@
 mutable struct Parameters
 
     boundary::Boundary
-    U_field::Union(Nothing, Function)
+    U_field::Union{Nothing, Function}
     alphas::Array{T} where {T<:Real}
     etas::Array{T} where {T<:Real}
 
