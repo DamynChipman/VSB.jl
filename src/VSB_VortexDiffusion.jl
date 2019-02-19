@@ -101,8 +101,8 @@ function CalcVSDiffusionCoefs(boundary::Boundary,
 
     # === Extract geometry from boundary ===
     X = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
-    n_hats = [[n_hat[1], n_hat[2]] for n_hat in boundary.nHats]
-    t_hats = [[t_hat[1], t_hat[2]] for t_hat in boundary.tHats]
+    n_hats = [[n_hat[1], n_hat[2], 0.0] for n_hat in boundary.nHats]
+    t_hats = [[t_hat[1], t_hat[2], 0.0] for t_hat in boundary.tHats]
     NPTS = boundary.NPTS_BODY
 
     # === Constants ===
