@@ -97,7 +97,7 @@ end
 function CalcVSDiffusionCoefs(boundary::Boundary,
                               alphas::Array{T},
                               dt::Real,
-                              nu::Real)
+                              nu::Real) where {T<:Real}
 
     # === Extract geometry from boundary ===
     X = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
