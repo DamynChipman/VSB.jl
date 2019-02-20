@@ -144,7 +144,7 @@ the strength of the vortex sheet required to induce a no-slip velocity on the bo
 """
 `CalcVSCoefs(boundary, U_slip)`
 """
-function CalcVSCoefs(boundary::Boundary, etas::Array{T}; U_slip::Union{Nothing, Function}=nothing) where {T<:Real}
+function CalcVSCoefs(boundary::Boundary, etas::Array{T}; U_slip::Union{Nothing, Function}=nothing, sigma=0.2) where {T<:Real}
 
     # === Extract geometry from boundary ===
     X_body = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
@@ -181,14 +181,14 @@ function CalcVSCoefs(boundary::Boundary, etas::Array{T}; U_slip::Union{Nothing, 
         res = 0
         for j in 1:NPTS
             if j != k
-                res = res + (1/(2*pi)) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2)
+                res = res + (1/(2*pi)) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i), sigma=sigma) * del_S(j))/(r_kj(k,j)^2)
             end
         end
         return res
     end
     #Theta_ki(k,i) = sum([((k != j) ? (1/pi) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2) : 0) for j in 1:NPTS] )
-    Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i)) * (rho_1(k))/(L) for j in 1:NPTS] )
-    phi_ki(k,i) = RBF_gauss(r_ki(k,i))
+    Lambda_ki(k,i) = sum( [RBF_gauss(r_ji(j,i), sigma=sigma) * (rho_1(k))/(L) for j in 1:NPTS] )
+    phi_ki(k,i) = RBF_gauss(r_ki(k,i), sigma=sigma)
 
     # === Calculate coefficient matrix ===
     A = zeros(NPTS,NPTS)
@@ -233,14 +233,15 @@ surface at the given X location.
 """
 function CalcVS(boundary::Boundary,
                 alpha::Array{T},
-                X_eval::Array{T}) where {T<:Real}
+                X_eval::Array{T};
+                sigma=0.2) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
 
     # === Summation over all points for gamma ===
-    gamma = -sum( [alpha[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    gamma = -sum( [alpha[i] * RBF_gauss(norm(X_eval - XP[i]), sigma=sigma) for i in 1:NPTS ] )
     return gamma
 
 end

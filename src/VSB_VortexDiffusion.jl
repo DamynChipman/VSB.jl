@@ -97,7 +97,8 @@ end
 function CalcVSDiffusionCoefs(boundary::Boundary,
                               alphas::Array{T},
                               dt::Real,
-                              nu::Real) where {T<:Real}
+                              nu::Real;
+                              sigma=0.2) where {T<:Real}
 
     # === Extract geometry from boundary ===
     X = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
@@ -117,13 +118,13 @@ function CalcVSDiffusionCoefs(boundary::Boundary,
                 r = norm(R)
                 r_hat = R ./ r
                 n_hat = n_hats[k]
-                A[k,i] = dot(RBF_gauss(r, deriv = 1) .* r_hat, n_hat)
+                A[k,i] = dot(RBF_gauss(r, deriv = 1, sigma=sigma) .* r_hat, n_hat)
             else
                 R = [0, 0, 0]
                 r = norm(R)
                 r_hat = [0, 0, 0]
                 n_hat = n_hats[k]
-                A[k,i] = dot(RBF_gauss(r, deriv = 1) .* r_hat, n_hat)
+                A[k,i] = dot(RBF_gauss(r, deriv = 1, sigma=sigma) .* r_hat, n_hat)
             end
         end
     end
@@ -146,13 +147,14 @@ end
 """
 function CalcDiffusion(boundary::Boundary,
                        beta::Array{T},
-                       X_eval::Array{T}) where {T<:Real}
+                       X_eval::Array{T};
+                       sigma=0.2) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
     NPTS = boundary.NPTS_BODY
 
     # === Summation over all points for gamma ===
-    omega = sum( [beta[i] * RBF_gauss(norm(X_eval - XP[i]), sigma=1.0) for i in 1:NPTS ] )
+    omega = sum( [beta[i] * RBF_gauss(norm(X_eval - XP[i]), sigma=sigma) for i in 1:NPTS ] )
     return omega
 end

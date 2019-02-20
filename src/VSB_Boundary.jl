@@ -20,7 +20,7 @@ end
 """
 
 """
-function CalcRhoCoefs(self::Boundary)
+function CalcRhoCoefs(self::Boundary; sigma = 0.2)
 
     # === Extract geometry from boundary ===
     X_body = [[point[1], point[2], 0.0] for point in self.bodyPTS]
@@ -54,14 +54,14 @@ function CalcRhoCoefs(self::Boundary)
         res = 0
         for j in 1:NPTS
             if j != k
-                res = res + (1/(2*pi)) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i)) * del_S(j))/(r_kj(k,j)^2)
+                res = res + (1/(2*pi)) * (dot(R_kj(k,j), n_hats[j]) * RBF_gauss(r_ji(j,i), sigma=sigma) * del_S(j))/(r_kj(k,j)^2)
             end
         end
         return res
     end
 
     function phi_ki(k,i)
-        return RBF_gauss(r_ki(k,i))
+        return RBF_gauss(r_ki(k,i), sigma=sigma)
     end
 
     # === Build coefficient matrix ===
@@ -84,14 +84,14 @@ end
 """
 
 """
-function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}) where {T<:Real}
+function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}; sigma = 0.2) where {T<:Real}
 
     # === Unpack geometry ===
     XP = [[point[1], point[2], 0.0] for point in self.bodyPTS]
     NPTS = self.NPTS_BODY
 
     # === Summation over all points for gamma ===
-    rho = sum( [etas[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    rho = sum( [etas[i] * RBF_gauss(norm(X_eval - XP[i]), sigma=sigma) for i in 1:NPTS ] )
     return rho
 
 end
