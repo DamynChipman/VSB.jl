@@ -153,6 +153,6 @@ function CalcDiffusion(boundary::Boundary,
     NPTS = boundary.NPTS_BODY
 
     # === Summation over all points for gamma ===
-    omega = sum( [beta[i] * RBF_gauss(norm(X_eval - XP[i])) for i in 1:NPTS ] )
+    omega = sum( [beta[i] * RBF_gauss(norm(X_eval - XP[i]), sigma=1.0) for i in 1:NPTS ] )
     return omega
 end
