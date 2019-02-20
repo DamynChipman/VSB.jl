@@ -20,7 +20,7 @@ function RBF_gauss(R::Float64;
                    A=1.0,sigma=0.2,deriv=0)
 
     if deriv == 0
-        res = (1/sigma^3)*SVPM.zeta_gauserf(R/sigma)
+        res = 1/sigma^3*SVPM.zeta_gauserf(R/sigma)
         # res = A*exp(-(R^2)/(2*sigma^2))
     elseif deriv == 1
         res = -((A*R)/(sigma^2))*exp(-(R^2)/(2*sigma^2))
