@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Xdmf xmlns:xi="http://www.w3.org/2001/XInclude" Version="3.0">
+	<Domain>
+		<Grid GridType="Collection" CollectionType="Temporal">
+			<Grid Name="particles">
+				<Time Value="0" />
+				<Geometry Origin="" Type="XYZ">
+					<DataItem DataType="Float" Dimensions="20 3" Format="HDF" Precision="4">pfield_testing.0.h5:X</DataItem>
+				</Geometry>
+				<Topology Dimensions="20" Type="Mixed">
+					<DataItem DataType="Int" Dimensions="60" Format="HDF" Precision="8">pfield_testing.0.h5:connectivity</DataItem>
+				</Topology>
+				<Attribute Center="Node" ElementCell="" ElementDegree="0" ElementFamily="" ItemType="" Name="Gamma" Type="Vector">
+					<DataItem DataType="Float" Dimensions="20 3" Format="HDF" Precision="4">pfield_testing.0.h5:Gamma</DataItem>
+				</Attribute>
+				<Attribute Center="Node" ElementCell="" ElementDegree="0" ElementFamily="" ItemType="" Name="sigma" Type="Scalar">
+					<DataItem DataType="Float" Dimensions="20" Format="HDF" Precision="4">pfield_testing.0.h5:sigma</DataItem>
+				</Attribute>
+				<Attribute Center="Node" ElementCell="" ElementDegree="0" ElementFamily="" ItemType="" Name="vol" Type="Scalar">
+					<DataItem DataType="Float" Dimensions="20" Format="HDF" Precision="4">pfield_testing.0.h5:vol</DataItem>
+				</Attribute>
+			</Grid>
+		</Grid>
+	</Domain>
+</Xdmf>
