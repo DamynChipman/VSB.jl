@@ -20,9 +20,7 @@ using SimpleVPM
 SVPM = SimpleVPM
 
 # ===== Exports =====
-export Boundary
-export NACA4
-export func
+export Boundary, NACA4, func
 
 """
     func(x)
