@@ -43,10 +43,12 @@ n_hats = [[X_nHat[i], Y_nHat[i], 0.0] for i in 1:NPTS]
 body = VSB.Boundary(body_pts,t_hats,n_hats)
 
 # === Parameters ===
-# Run 5
-nu = 1e0                                    # Kinematic Viscosity
+file_path = splitdir(@__FILE__)[1]
+save_path = joinpath(file_path, "sims/verification3_08/")
+run_name = "verifications3_08"
+nu = 1e0                                   # Kinematic Viscosity
 magU_inf = 1.0                              # Magnitude of Free-Stream Velocity
-del_t = 0.5                                 # Time step
+del_t = 0.1                                 # Time step
 NSTEPS = 100                                # Number of time steps
 Re = magU_inf * R / nu                      # Reynolds Number
 
@@ -114,6 +116,9 @@ function RunTimeFunction(pfield, t, del_t)
             SimpleVPM.addparticle(pfield, particle)
         end
 
+        pfield_gamma = [p.Gamma[3] for p in pfield.particles]
+        println("  MAX GAMMA = ",maximum(pfield_gamma))
+
     end
 
     # === Returns ===
@@ -136,9 +141,7 @@ println("***********************************")
 
 NSTEPS_relax = -1
 sigma0 = sigma
-file_path = splitdir(@__FILE__)[1]
-save_path = joinpath(file_path, "sims/verification3_07/")
-run_name = "verifications3_07"
+
 paraview = true
 
 SimpleVPM.run_vpm!(pfield, del_t, NSTEPS,

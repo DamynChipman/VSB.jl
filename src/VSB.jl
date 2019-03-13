@@ -19,6 +19,18 @@ using LinearAlgebra
 using SimpleVPM
 SVPM = SimpleVPM
 
+# ===== Exports =====
+export Boundary
+export NACA4
+export func
+
+"""
+    func(x)
+
+Returns double the number `x` plus `1`.
+"""
+func(x) = 2x + 1
+
 # ===== GLOBAL VARIABLES =====
 const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
 #const module_path = splitdir(@__file__)[1]             # File path to module VSB.jl

@@ -1,7 +1,9 @@
 """
-`Boundary`
+    Boundary(body_pts,t_hats,n_hats)
 
-
+Struct containing boundary information. The user must supply the location of the
+body points (body_pts), and the tangent and normal vectors of the body at each
+body point.
 """
 mutable struct Boundary
 
@@ -97,7 +99,7 @@ function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}; sigma = 0.2) 
 end
 
 """
-    `NACA_airfoil(numb, N, c)`
+    `NACA4(numb, N, c)`
 
 NACA Four-Digit Series Airfoil. Returns two lists of ordered pairs representing
 a NACA Four-Digit Airfoil.
