@@ -4,6 +4,23 @@
 Struct containing boundary information. The user must supply the location of the
 body points (body_pts), and the tangent and normal vectors of the body at each
 body point.
+
+# ARGUMENTS
+* `body_pts`   : Array of the form [[x1,y1,z1], [x2,y2,z2], ...] containing the
+                 locations of the boundary nodes. Assumes a CCW orientation.
+* `t_hats`     : Array of the same form containing the tangent unit vectors at
+                 each ponit of the boundary. Same size as body_pts.
+* `n_hats`     : Array of the same form containing the normal unit vectors at
+                 each ponit of the boundary. Same size as body_pts.
+
+# PROPERTIES
+* `bodyPTS`    : Array of the form [[x1,y1,z1], [x2,y2,z2], ...] containing the
+                 locations of the boundary nodes.
+* `tHats`      : Array of the same form containing the tangent unit vectors at
+                 each ponit of the boundary. Same size as body_pts.
+* `nHats`      : Array of the same form containing the normal unit vectors at
+                 each ponit of the boundary. Same size as body_pts.
+* `NPTS_BODY`  : Number of points in the body.
 """
 mutable struct Boundary
 
