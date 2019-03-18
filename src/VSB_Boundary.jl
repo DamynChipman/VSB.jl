@@ -137,78 +137,115 @@ function NACA4(numb::String,
 
     println(" NACA digits: m = ",m,"  p = ",p,"  tau = ",tau)
 
-    # Define camber geometery
-    if p != 0
-        del_x1 = (p*c - 0)/(N/4)
-        del_x2 = (c - p*c)/(N/4)
+    Yt(x) = 5*tau*(0.2969*sqrt(x) - 0.1260*x - 0.3516*x^2 + 0.2843*x^3 - 0.1015*x^5)
 
-        x1 = 0:del_x1:(p*c)
-        Y1 = ((m)./(p^2)).*(2*p*(x1./c) - (x1./c).^2)
-        dY_dx1 = ((2*m)/(p^2)).*(p - x1./c)
-
-        x2 = (p*c):del_x2:(c)
-        Y2 = ((m)./((1 - p)^2)).*((1 - 2*p) + (2*p).*(x2./c) - (x2./c).^2)
-        dY_dx2 = ((m)/((1 - p)^2)).*((1 - 2*p) + 2*p.*(x2./c) - (x2./c).^2)
-
-        camber = [x1 Y1; x2 Y2]
-
-        x = zeros(length(x1)+length(x2)-1)
-        Y = zeros(length(Y1)+length(Y2)-1)
-        dY_dx = zeros(length(dY_dx1)+length(dY_dx2)-1)
-        for i=1:length(x1)
-            x[i] = x1[i]
-            Y[i] = Y1[i]
-            dY_dx[i] = dY_dx1[i]
+    function Yc(x)
+        if 0 <= x && x > p*c
+            return (m/p^2) * (2*p*(x/c) - (x/c)^2)
+        else
+            return (m/(1 - p)^2) * ((1 - 2*p) + 2*p*(x/c) - (x/c)^2)
         end
-        for i=2:length(x2)
-            x[i+length(x1)-1] = x2[i]
-            Y[i+length(x1)-1] = Y2[i]
-            dY_dx[i+length(x1)-1] = dY_dx2[i]
+    end
+
+    function dYc_dX(x)
+        if 0 <= x && x > p*c
+            return (2*m/p^2) * (p - x/c)
+        else
+            return (2*m/(1 - p)^2) * (p - x/c)
         end
-    else
-        del_x = c/(N/2)
-        x = 0:del_x:c
-        Y = zeros(length(x),1)
-        camber = [x Y]
-        dY_dx = zeros(length(x),1)
     end
 
-    # Define airfoil thickness
-    T(x) = 5*tau*(0.2969*x^.5 - 0.1260*x - 0.3516*x^2 + 0.2843*x^3 - 0.1015*x^4)
+    theta(x) = atan(dYc_dX(x))
 
-    # Determine x and y coordinates of airfoil surface
-    x_upper, x_lower, y_upper, y_lower = 0. * x, 0. * x, 0. * x, 0. * x
-    for i=1:length(x)
-        theta = atan(dY_dx[i])
+    del_X = c/(N - 1)
+    X = 0:del_X:c
+    X_upper = [x - Yt(x)*sin(theta(x)) for x in X]
+    X_lower = [x + Yt(x)*sin(theta(x)) for x in X]
+    Y_upper = [Yc(x) + Yt(x)*cos(theta(x)) for x in X]
+    Y_lower = [Yc(x) - Yt(x)*cos(theta(x)) for x in X]
 
-        x_upper[i] = x[i] - T(x[i])*sin(theta)
-        x_lower[i] = x[i] + T(x[i])*sin(theta)
-        y_upper[i] = Y[i] + T(x[i])*cos(theta)
-        y_lower[i] = Y[i] - T(x[i])*cos(theta)
-    end
+    upper = [[X_upper[i], Y_upper[i]] for i in 1:N]
+    lower = [[X_lower[i], Y_lower[i]] for i in 1:N]
 
-    upper = zeros(length(x_upper),2)
-    lower = zeros(length(x_lower),2)
-    for i=1:length(upper[:,1])
-        upper[i,:] = [x_upper[i],y_upper[i]]
-        lower[i,:] = [x_lower[i],y_lower[i]]
-    end
+    return X_upper, X_lower, Y_upper, Y_lower
 
-    if m == 0 && p == 0
-        upper[1,:] = [0.0 0.0]
-        lower[1,:] = [0.0 0.0]
-    end
-
-    # Redefine the orientation of the airfoil
-    airfoil = zeros(2*length(x_lower)-2,2)
-    for n=1:length(upper[:,1])
-        airfoil[n,1] = upper[(length(upper[:,1])+1)-n,1]
-        airfoil[n,2] = upper[(length(upper[:,1])+1)-n,2]
-    end
-    for n=2:(length(upper[:,1])-1)
-        airfoil[n+length(upper[:,1])-1,1] = lower[n,1]
-        airfoil[n+length(upper[:,1])-1,2] = lower[n,2]
-    end
-
-    return upper,lower,airfoil,camber
+    # # Define camber geometery
+    # if p != 0
+    #     del_x1 = (p*c - 0)/(N/4)
+    #     del_x2 = (c - p*c)/(N/4)
+    #
+    #     x1 = 0:del_x1:(p*c)
+    #     Y1 = ((m)./(p^2)).*(2*p*(x1./c) - (x1./c).^2)
+    #     dY_dx1 = ((2*m)/(p^2)).*(p - x1./c)
+    #
+    #     x2 = (p*c):del_x2:(c)
+    #     Y2 = ((m)./((1 - p)^2)).*((1 - 2*p) + (2*p).*(x2./c) - (x2./c).^2)
+    #     dY_dx2 = ((m)/((1 - p)^2)).*((1 - 2*p) + 2*p.*(x2./c) - (x2./c).^2)
+    #
+    #     camber = [x1 Y1; x2 Y2]
+    #
+    #     x = zeros(length(x1)+length(x2)-1)
+    #     Y = zeros(length(Y1)+length(Y2)-1)
+    #     dY_dx = zeros(length(dY_dx1)+length(dY_dx2)-1)
+    #     for i=1:length(x1)
+    #         x[i] = x1[i]
+    #         Y[i] = Y1[i]
+    #         dY_dx[i] = dY_dx1[i]
+    #     end
+    #     for i=2:length(x2)
+    #         x[i+length(x1)-1] = x2[i]
+    #         Y[i+length(x1)-1] = Y2[i]
+    #         dY_dx[i+length(x1)-1] = dY_dx2[i]
+    #     end
+    # else
+    #     del_x = c/(N/2)
+    #     x = 0:del_x:c
+    #     Y = zeros(length(x),1)
+    #     camber = [x Y]
+    #     dY_dx = zeros(length(x),1)
+    # end
+    #
+    # # Define airfoil thickness
+    # T(x) = 5*tau*(0.2969*x^.5 - 0.1260*x - 0.3516*x^2 + 0.2843*x^3 - 0.1015*x^4)
+    #
+    # # Determine x and y coordinates of airfoil surface
+    # x_upper, x_lower, y_upper, y_lower = 0. * x, 0. * x, 0. * x, 0. * x
+    # for i=1:length(x)
+    #     theta = atan(dY_dx[i])
+    #
+    #     x_upper[i] = x[i] - T(x[i])*sin(theta)
+    #     x_lower[i] = x[i] + T(x[i])*sin(theta)
+    #     y_upper[i] = Y[i] + T(x[i])*cos(theta)
+    #     y_lower[i] = Y[i] - T(x[i])*cos(theta)
+    # end
+    #
+    # upper = zeros(length(x_upper),2)
+    # lower = zeros(length(x_lower),2)
+    # for i=1:length(upper[:,1])
+    #     upper[i,:] = [x_upper[i],y_upper[i]]
+    #     lower[i,:] = [x_lower[i],y_lower[i]]
+    # end
+    #
+    # if m == 0 && p == 0
+    #     upper[1,:] = [0.0 0.0]
+    #     lower[1,:] = [0.0 0.0]
+    # end
+    #
+    # # Redefine the orientation of the airfoil
+    # airfoil = zeros(2*length(x_lower)-2,2)
+    # for n=1:length(upper[:,1])
+    #     airfoil[n,1] = upper[(length(upper[:,1])+1)-n,1]
+    #     airfoil[n,2] = upper[(length(upper[:,1])+1)-n,2]
+    # end
+    # for n=2:(length(upper[:,1])-1)
+    #     airfoil[n+length(upper[:,1])-1,1] = lower[n,1]
+    #     airfoil[n+length(upper[:,1])-1,2] = lower[n,2]
+    # end
+    # body_pts = [[X[1], X[2], 0] for X in airfoil]
+    #
+    # # Calculate the tanget vectors
+    # t_hats =
+    #
+    # NACA_boundary = Boundary(body_pts, t_hats, n_hats)
+    # return NACA_boundary
 end
