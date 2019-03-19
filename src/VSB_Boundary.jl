@@ -167,6 +167,14 @@ function NACA4(numb::String,
     upper = [[X_upper[i], Y_upper[i]] for i in 1:N]
     lower = [[X_lower[i], Y_lower[i]] for i in 1:N]
 
+    body_pts = [[0,0,0] for i in 1:2*N]
+    for i in 0:N-1
+        body_pts[i] = [X_upper[N-i], Y_upper[N-i], 0.0]
+        body_pts[N+i+1] = [X_lower[i+1], Y_lower[i+1], 0.0]
+    end
+
+    println(body_pts)
+
     return X_upper, X_lower, Y_upper, Y_lower
 
     # # Define camber geometery
