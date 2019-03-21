@@ -155,7 +155,7 @@ function Circle(R::Float64,
                 O::Array{Float64},
                 NPTS::Int64)
 
-    del_theta = (2*pi)/(NPTS - 1)              # Step in theta around body
+    del_theta = (2*pi)/(NPTS)              # Step in theta around body
     k_hat = [0.0, 0.0, 1.0]                 # Z direction unit vector
     X_coor = zeros(NPTS)                    # X-coordinates
     Y_coor = zeros(NPTS)                    # Y-coordinates
