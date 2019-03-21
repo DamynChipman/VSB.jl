@@ -118,6 +118,50 @@ function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}; sigma = 0.2) 
 end
 
 """
+    `Circle(R, O, N)`
+
+Creates a Boundary object in the shape of a circle of radius R at origin O.
+
+# ARGUMENTS
+* `R::Float64`        : Radius of cirlce
+* `O::Array{Float64}` : Origin of cirlce of form [X, Y, Z]
+* `N::Int64`          : Number of points
+
+# RETURNS
+* `circle::Boundary`  : Boundary object of cirlce
+"""
+function Circle(R::Float64,
+                O::Array{Float64},
+                N::Int64)
+
+    del_theta = (2*pi)/(N - 1)              # Step in theta around body
+    k_hat = [0.0, 0.0, 1.0]                 # Z direction unit vector
+    X_coor = zeros(NPTS)                    # X-coordinates
+    Y_coor = zeros(NPTS)                    # Y-coordinates
+    X_tHat = zeros(NPTS)                    # X Tangent Vector
+    Y_tHat = zeros(NPTS)                    # X Tangent Vector
+    X_nHat = zeros(NPTS)                    # Y Normal Vector
+    Y_nHat = zeros(NPTS)                    # Y Normal Vector
+    for i=1:NPTS
+        X_coor[i] = R*cos((i-1)*del_theta) + O[1]
+        Y_coor[i] = R*sin((i-1)*del_theta) + O[2]
+
+        X_tHat[i] = sin((i-1)*del_theta)
+        Y_tHat[i] = -cos((i-1)*del_theta)
+
+        X_nHat[i] = cos((i-1)*del_theta)
+        Y_nHat[i] = sin((i-1)*del_theta)
+    end
+    body_pts = [[X_coor[i], Y_coor[i], 0.0] for i in 1:NPTS]
+    t_hats = [[X_tHat[i], Y_tHat[i], 0.0] for i in 1:NPTS]
+    n_hats = [[X_nHat[i], Y_nHat[i], 0.0] for i in 1:NPTS]
+
+    circle = VSB.Boundary(body_pts,t_hats,n_hats)
+    return circle
+
+end
+
+"""
     `NACA4(numb, N, c)`
 
 NACA Four-Digit Series Airfoil. Returns two lists of ordered pairs representing
