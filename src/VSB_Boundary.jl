@@ -153,7 +153,7 @@ Creates a Boundary object in the shape of a circle of radius R at origin O.
 """
 function Circle(R::Float64,
                 O::Array{Float64},
-                N::Int64)
+                NPTS::Int64)
 
     del_theta = (2*pi)/(N - 1)              # Step in theta around body
     k_hat = [0.0, 0.0, 1.0]                 # Z direction unit vector
