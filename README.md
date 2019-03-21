@@ -1,6 +1,7 @@
 # VSB.jl
 
-Vortex Sheet Boundary Method for Fluid Systems
+##### Vortex Sheet Boundary Method for Fluid Systems
+
 Author: Damyn Chipman
 
 A mesh-less and Lagrangian approach to address the presence of boundaries for application with the Vortex Particle Method.
