@@ -1,11 +1,11 @@
 """
-    RBF_gauss(R;A=1.0,sigma=0.2,deriv=0)
+    `RBF_gauss(R;A=1.0,sigma=0.2,deriv=0)`
 
 Kernel function for Gaussian RBF Interpolation. Returns the magnitude of evaluated
 function.
 
 The optional argument `deriv` is for the order of the derivative desired, meaning
-0 for base, 1 for first derivative (gradient) and 2 for second derivative (Laplacian)
+0 for base, 1 for first derivative (gradient) and 2 for second derivative (Laplacian).
 
 # ARGUMENTS
 * `R::Float64` : Magnitude of radius vector -> R = |X_j - X_i|
