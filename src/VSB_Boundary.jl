@@ -91,6 +91,8 @@ function CalcRhoCoefs(self::Boundary; sigma = 0.2)
         end
     end
 
+    #println(A)
+
     # === Build RHS vector ===
     b = zeros(NPTS)
 
@@ -135,8 +137,6 @@ function NACA4(numb::String,
     p = parse(Int,numb[2])*.1
     tau = (parse(Int,numb[3])*10 + parse(Int,numb[4]))*.01
 
-    println(" NACA digits: m = ",m,"  p = ",p,"  tau = ",tau)
-
     Yt(x) = 5*tau*(0.2969*sqrt(x) - 0.1260*x - 0.3516*x^2 + 0.2843*x^3 - 0.1015*x^5)
 
     function Yc(x)
@@ -167,93 +167,29 @@ function NACA4(numb::String,
     upper = [[X_upper[i], Y_upper[i]] for i in 1:N]
     lower = [[X_lower[i], Y_lower[i]] for i in 1:N]
 
-    body_pts = [[0,0,0] for i in 1:2*N]
+    body_pts = [[0.0,0.0,0.0] for i in 1:2*N]
     for i in 0:N-1
-        body_pts[i] = [X_upper[N-i], Y_upper[N-i], 0.0]
+        body_pts[i+1] = [X_upper[N-i], Y_upper[N-i], 0.0]
         body_pts[N+i+1] = [X_lower[i+1], Y_lower[i+1], 0.0]
     end
 
-    println(body_pts)
+    t_hats = [[0.0,0.0,0.0] for i in 1:2*N]
+    n_hats = t_hats
+    for i in 1:2*N
 
-    return X_upper, X_lower, Y_upper, Y_lower
+        if i != 2*N
+            R = body_pts[i] - body_pts[i+1]
+        else
+            R = body_pts[N] - body_pts[1]
+        end
 
-    # # Define camber geometery
-    # if p != 0
-    #     del_x1 = (p*c - 0)/(N/4)
-    #     del_x2 = (c - p*c)/(N/4)
-    #
-    #     x1 = 0:del_x1:(p*c)
-    #     Y1 = ((m)./(p^2)).*(2*p*(x1./c) - (x1./c).^2)
-    #     dY_dx1 = ((2*m)/(p^2)).*(p - x1./c)
-    #
-    #     x2 = (p*c):del_x2:(c)
-    #     Y2 = ((m)./((1 - p)^2)).*((1 - 2*p) + (2*p).*(x2./c) - (x2./c).^2)
-    #     dY_dx2 = ((m)/((1 - p)^2)).*((1 - 2*p) + 2*p.*(x2./c) - (x2./c).^2)
-    #
-    #     camber = [x1 Y1; x2 Y2]
-    #
-    #     x = zeros(length(x1)+length(x2)-1)
-    #     Y = zeros(length(Y1)+length(Y2)-1)
-    #     dY_dx = zeros(length(dY_dx1)+length(dY_dx2)-1)
-    #     for i=1:length(x1)
-    #         x[i] = x1[i]
-    #         Y[i] = Y1[i]
-    #         dY_dx[i] = dY_dx1[i]
-    #     end
-    #     for i=2:length(x2)
-    #         x[i+length(x1)-1] = x2[i]
-    #         Y[i+length(x1)-1] = Y2[i]
-    #         dY_dx[i+length(x1)-1] = dY_dx2[i]
-    #     end
-    # else
-    #     del_x = c/(N/2)
-    #     x = 0:del_x:c
-    #     Y = zeros(length(x),1)
-    #     camber = [x Y]
-    #     dY_dx = zeros(length(x),1)
-    # end
-    #
-    # # Define airfoil thickness
-    # T(x) = 5*tau*(0.2969*x^.5 - 0.1260*x - 0.3516*x^2 + 0.2843*x^3 - 0.1015*x^4)
-    #
-    # # Determine x and y coordinates of airfoil surface
-    # x_upper, x_lower, y_upper, y_lower = 0. * x, 0. * x, 0. * x, 0. * x
-    # for i=1:length(x)
-    #     theta = atan(dY_dx[i])
-    #
-    #     x_upper[i] = x[i] - T(x[i])*sin(theta)
-    #     x_lower[i] = x[i] + T(x[i])*sin(theta)
-    #     y_upper[i] = Y[i] + T(x[i])*cos(theta)
-    #     y_lower[i] = Y[i] - T(x[i])*cos(theta)
-    # end
-    #
-    # upper = zeros(length(x_upper),2)
-    # lower = zeros(length(x_lower),2)
-    # for i=1:length(upper[:,1])
-    #     upper[i,:] = [x_upper[i],y_upper[i]]
-    #     lower[i,:] = [x_lower[i],y_lower[i]]
-    # end
-    #
-    # if m == 0 && p == 0
-    #     upper[1,:] = [0.0 0.0]
-    #     lower[1,:] = [0.0 0.0]
-    # end
-    #
-    # # Redefine the orientation of the airfoil
-    # airfoil = zeros(2*length(x_lower)-2,2)
-    # for n=1:length(upper[:,1])
-    #     airfoil[n,1] = upper[(length(upper[:,1])+1)-n,1]
-    #     airfoil[n,2] = upper[(length(upper[:,1])+1)-n,2]
-    # end
-    # for n=2:(length(upper[:,1])-1)
-    #     airfoil[n+length(upper[:,1])-1,1] = lower[n,1]
-    #     airfoil[n+length(upper[:,1])-1,2] = lower[n,2]
-    # end
-    # body_pts = [[X[1], X[2], 0] for X in airfoil]
-    #
-    # # Calculate the tanget vectors
-    # t_hats =
-    #
-    # NACA_boundary = Boundary(body_pts, t_hats, n_hats)
-    # return NACA_boundary
+        r = norm(R)
+        t_hats[i] = R/r
+        n_hats[i] = cross(t_hats[i], [0,0,1])
+    end
+
+    NACA = Boundary(body_pts, t_hats, n_hats)
+
+    return NACA
+
 end
