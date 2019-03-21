@@ -37,7 +37,17 @@ mutable struct Boundary
 end
 
 """
+    `CalcRhoCoefs(self::Boundary)`
 
+Takes a Boundary object and calculates the RBF coefficients for the eigenfunction
+of the kernel decomposition.
+
+# ARGUMENTS
+* `self::Boundary`   : Boundary object
+* `sigma = 0.2`      : Gaussian width
+
+# RETURNS
+* `etas::Array{Float64}` : Array containing the RBF coefficient values for rho
 """
 function CalcRhoCoefs(self::Boundary; sigma = 0.2)
 
@@ -103,7 +113,18 @@ function CalcRhoCoefs(self::Boundary; sigma = 0.2)
 end
 
 """
+    `CalcRho(self::Boundary, etas, X_eval)`
 
+Evaluates the RBF approxiamation function: rho(X) = sum(eta_i * phi(X - X_)).
+
+# ARGUMENTS
+* `self::Boundary`          : Boundary object
+* `etas::Array{Float64}`    : Array containing RBF coefficients
+* `X_eval::Array{Float64}`  : Point to evaluate function at
+* `sigma = 0.2`             : Gaussian width
+
+# RETURNS
+* `rho::Float64`            : Evaluated function value
 """
 function CalcRho(self::Boundary, etas::Array{T}, X_eval::Array{T}; sigma = 0.2) where {T<:Real}
 
