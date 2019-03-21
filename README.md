@@ -19,3 +19,7 @@ pkg> add https://github.com/camperD/VSB.jl
 Theory for the method, including a detailed mathematical derivation and numerical discretization, can be found under [Theory](https://github.com/camperD/VSB.jl/blob/master/Theory.pdf)
 
 For usage examples, see [TODO: Finish and add tests. Link to here].
+
+### Status
+
+This work contains the bulk of my senior thesis in Applied Physics and is ongoing. I expect to have a polished and up-to-date release, with full documentation, examples, and test cases by the end of April 2019.
