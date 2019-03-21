@@ -92,7 +92,20 @@ function CalcDiffusionCoefs(pfield::SVPM.ParticleField,
 end
 
 """
+    `CalcVSDiffusionCoefs(boundary, alphas, dt, nu)`
 
+Calculates the RBF coefficients for the diffusion step.
+
+# ARGUMENTS
+* `boundary::Boundary`     : Boundary object
+* `etas::Array{T}`         : RBF coefficients for rho
+* `dt::Real`               : Time step
+* `nu::Real`               : Kinematic viscosity
+* `sigma = 0.2`            : Gaussian width
+where {T<:Real}
+
+# RETURNS
+* `betas::Array{Float64}`  : Array of RBF coefficients
 """
 function CalcVSDiffusionCoefs(boundary::Boundary,
                               alphas::Array{T},
@@ -143,7 +156,19 @@ end
 
 
 """
+    `CalcDiffusion(boundary, beta, X_eval)`
 
+Evaluates the RBF interpolation function: omega(X) = sum(beta_i * phi(X - X_i)).
+
+# ARGUMENTS
+* `boundary::Boundary` : Boundary object
+* `beta::Array{T}`     : Array containing RBF coefficients
+* `X_eval::Array{T}`   : Point to evaluate function at
+* `sigma = 0.2`        : Gaussian width
+where {T<:Real}
+
+# RETURNS
+* `omega::Float64`     : Evaluated function value
 """
 function CalcDiffusion(boundary::Boundary,
                        beta::Array{T},
