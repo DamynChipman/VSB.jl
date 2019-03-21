@@ -1,7 +1,5 @@
 # Required packages for VSB.jl
 QuadGK          # Integration capabilites
-SciTools        # Homemade scientific computing tools package
 LinearAlgebra   # For norm function
 LaTeXStrings    # For graphics formatting
 SimpleVPM       # Simple Vortex Particle Method Package
-
