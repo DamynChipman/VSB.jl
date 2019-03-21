@@ -1,7 +1,17 @@
 """
-`CalcVSCoefs(boundary, etas; U_slip, sigma)`
+    `CalcVSCoefs(boundary, etas; U_slip, sigma)`
 
+Calculates the vortex sheet RBF coefficients.
 
+# ARGUMENTS
+* `boundary::Boundary`                       : Boundary object
+* `etas::Array{T}`                           : RBF coefficients for rho
+* `U_slip::Union{Nothing, Function}=nothing` : Slip velocity field function: U_slip(X)
+* `sigma = 0.2`                              : Gaussian width
+where {T<:Real}
+
+# RETURNS
+* `alphas::Array{Float64}`                   : Array of RBF coefficients
 """
 function CalcVSCoefs(boundary::Boundary,
                      etas::Array{T};
@@ -77,21 +87,19 @@ function CalcVSCoefs(boundary::Boundary,
 end
 
 """
-`CalcVortexSheet(panels,alpha,X,sigma=0.2,a=1.0)`
+    `CalcVS(boundary, alpha, X_eval)`
 
-Given a geometry of panels, the strength of the vortex particle on the panels,
-and an X location, computes the contribution from all the vortex particles on the
-surface at the given X location.
+Evaluates the RBF interpolation function: gamma(X) = sum(alpha_i * phi(X - X_i)).
 
 # ARGUMENTS
-* `panels::Array{Panel2D}` : Array of Panel2D objects representing a body
-* `alpha::Array{Float64`   : Radial basis function coefficients previously solved for
-* `X::Array{Float64}`      : Point to compute contribution at
-* `sigma::Float64=0.2`     : Guassian width
-* `a::Float64=1.0`         : Normalization constant for Guassian
+* `boundary::Boundary` : Boundary object
+* `alpha::Array{T}`    : Array containing RBF coefficients
+* `X_eval::Array{T}`   : Point to evaluate function at
+* `sigma = 0.2`        : Gaussian width
+where {T<:Real}
 
-# OUTPUTS
-* `gamma::Float64`         : Contribution from all vortex particles at X
+# RETURNS
+* `gamma::Float64`     : Evaluated function value
 """
 function CalcVS(boundary::Boundary,
                 alpha::Array{T},
@@ -108,32 +116,32 @@ function CalcVS(boundary::Boundary,
 
 end
 
-"""
-
-"""
-function CalcVSVelocityCirlce(boundary::Boundary,
-                              alpha::Array{T},
-                              X_eval::Array{T};
-                              radius=1.0) where {T<:Real}
-
-    # === Unpack geometry ===
-    X_body = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
-    NPTS = boundary.NPTS_BODY
-
-    # === Function definitions ===
-    X_j(j) = X_body[j]                                       # Set_j of points on S
-    X_jp1(j) = (j != NPTS) ? X_body[j+1] : X_body[1]         # Point j + 1
-    R_xj(j) = X_eval - X_j(j)                                # X_eval - X_j
-    r_xj(j) = norm(R_xj(j))                                  # | X_eval - X_j |
-
-    gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
-    del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
-
-    num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
-    den(j) = 2*pi * r_xj(j)^2                                # Denominator
-
-    # === Calculate velocity ===
-    U = sum( [((r_xj(j) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
-    return U
-
-end
+# """
+#
+# """
+# function CalcVSVelocityCirlce(boundary::Boundary,
+#                               alpha::Array{T},
+#                               X_eval::Array{T};
+#                               radius=1.0) where {T<:Real}
+#
+#     # === Unpack geometry ===
+#     X_body = [[point[1], point[2], 0.0] for point in boundary.bodyPTS]
+#     NPTS = boundary.NPTS_BODY
+#
+#     # === Function definitions ===
+#     X_j(j) = X_body[j]                                       # Set_j of points on S
+#     X_jp1(j) = (j != NPTS) ? X_body[j+1] : X_body[1]         # Point j + 1
+#     R_xj(j) = X_eval - X_j(j)                                # X_eval - X_j
+#     r_xj(j) = norm(R_xj(j))                                  # | X_eval - X_j |
+#
+#     gamma(j) = CalcVS(boundary, alpha, X_j(j)) .* [0, 0, 1]  # Vortex sheet strength
+#     del_S(j) = norm(X_j(j) - X_jp1(j))                       # ΔS_j
+#
+#     num(j) = cross(X_eval - X_j(j), gamma(j)) * del_S(j)     # Numerator
+#     den(j) = 2*pi * r_xj(j)^2                                # Denominator
+#
+#     # === Calculate velocity ===
+#     U = sum( [((r_xj(j) < 1e-12) ? zeros(3) : num(j) ./ den(j)) for j in 1:NPTS] )
+#     return U
+#
+# end
