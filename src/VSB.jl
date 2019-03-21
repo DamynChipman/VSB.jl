@@ -21,7 +21,11 @@ SVPM = SimpleVPM
 
 # ===== Exports =====
 export Boundary, Parameters
-export NACA4
+export CalcRhoCoefs, CalcRho
+export Circle, NACA4
+export RBF_gauss
+export CalcVSCoefs, CalcVS
+export CalcVSDiffusionCoefs, CalcDiffusion
 
 # ===== GLOBAL VARIABLES =====
 const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
@@ -29,7 +33,6 @@ const NUMB_MATRIX = Array{Array{T,1},1} where {T<:Real} # Numerical matrix type
 
 # ===== Files =====
 file_names = ["RBF",
-              "SVPMRunTime",
               "Boundary",
               "CalcVortexSheet",
               "VortexDiffusion",
