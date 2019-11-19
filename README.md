@@ -16,7 +16,7 @@ pkg> add https://github.com/camperD/VSB.jl
 
 ### Orientation
 
-Theory for the method, including a detailed mathematical derivation and numerical discretization, can be found under [Theory](https://github.com/camperD/VSB.jl/blob/master/Theory.pdf)
+Theory for the method, including a detailed mathematical derivation and numerical discretization, can be found under [Theory](https://github.com/camperD/VSB.jl/blob/master/Theory_VSB.pdf)
 
 ### Status
 
